@@ -24,8 +24,9 @@ public class CountryService {
     }
 
     public CountryResponse addCountry(CountryRequest countryRequest) {
-        Country country = countryRepository.save(countryMapper.toEntity(countryRequest));
-        return countryMapper.toResponse(country);
+        Country country = countryMapper.toEntity(countryRequest);
+        Country savedCountry = countryRepository.save(country);
+        return countryMapper.toResponse(savedCountry);
     }
 
     public CountryResponse updateCountry(Integer countryId, CountryRequest countryRequest) {
