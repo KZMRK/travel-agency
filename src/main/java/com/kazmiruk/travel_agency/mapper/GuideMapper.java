@@ -1,5 +1,6 @@
 package com.kazmiruk.travel_agency.mapper;
 
+import com.kazmiruk.travel_agency.dto.GuideDto;
 import com.kazmiruk.travel_agency.dto.GuideRequest;
 import com.kazmiruk.travel_agency.dto.GuideResponse;
 import com.kazmiruk.travel_agency.model.Guide;
@@ -15,4 +16,6 @@ public interface GuideMapper {
 
     @Mapping(target = "id", ignore = true)
     Guide toEntity(GuideRequest guideRequest);
+
+    Guide toEntity(GuideDto guideDto);
 }
