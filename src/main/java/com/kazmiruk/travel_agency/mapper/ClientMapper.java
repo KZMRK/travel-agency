@@ -13,7 +13,6 @@ public interface ClientMapper {
 
     Iterable<ClientResponse> toResponse(Iterable<Client> clients);
 
-    @Mapping(target = "tours", ignore = true)
     @Mapping(target = "id", ignore = true)
     Client toEntity(ClientRequest clientRequest);
 }

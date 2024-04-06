@@ -14,7 +14,6 @@ public interface TourMapper {
     Iterable<TourResponse> toResponse(Iterable<Tour> tours);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "clients", ignore = true)
     Tour toEntity(TourRequest tourRequest);
 
 }

@@ -1,7 +1,9 @@
 package com.kazmiruk.travel_agency.web;
 
+import com.kazmiruk.travel_agency.dto.BookTourRequest;
 import com.kazmiruk.travel_agency.dto.TourRequest;
 import com.kazmiruk.travel_agency.dto.TourResponse;
+import com.kazmiruk.travel_agency.dto.TourSellingPriceResponse;
 import com.kazmiruk.travel_agency.service.TourService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -42,5 +44,15 @@ public class TourController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTour(@PathVariable("id") Long tourId) {
         tourService.deleteTour(tourId);
+    }
+
+    @PostMapping("/{tourId}/clients/{clientId}")
+    public ResponseEntity<TourSellingPriceResponse> bookTour(
+            @PathVariable Long tourId,
+            @PathVariable Long clientId,
+            @RequestBody BookTourRequest bookTourRequest
+    ) {
+        TourSellingPriceResponse tourResponse = tourService.bookTour(tourId, clientId, bookTourRequest);
+        return ResponseEntity.ok(tourResponse);
     }
 }

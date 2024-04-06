@@ -1,23 +1,24 @@
 package com.kazmiruk.travel_agency.service;
 
-import com.kazmiruk.travel_agency.dto.GuideDto;
+import com.kazmiruk.travel_agency.dto.BookTourRequest;
 import com.kazmiruk.travel_agency.dto.TourRequest;
 import com.kazmiruk.travel_agency.dto.TourResponse;
+import com.kazmiruk.travel_agency.dto.TourSellingPriceResponse;
 import com.kazmiruk.travel_agency.mapper.TourMapper;
-import com.kazmiruk.travel_agency.model.Country;
-import com.kazmiruk.travel_agency.model.Guide;
-import com.kazmiruk.travel_agency.model.Tour;
-import com.kazmiruk.travel_agency.repository.CountryRepository;
-import com.kazmiruk.travel_agency.repository.GuideRepository;
-import com.kazmiruk.travel_agency.repository.TourRepository;
+import com.kazmiruk.travel_agency.mapper.TourSellingPriceMapper;
+import com.kazmiruk.travel_agency.model.*;
+import com.kazmiruk.travel_agency.repository.*;
+import com.kazmiruk.travel_agency.uti.error.TooMuchDiscountException;
+import com.kazmiruk.travel_agency.uti.holder.TourBookingProps;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TourService {
 
     private final TourRepository tourRepository;
@@ -27,6 +28,14 @@ public class TourService {
     private final CountryRepository countryRepository;
 
     private final GuideRepository guideRepository;
+
+    private final ClientRepository clientRepository;
+
+    private final TourBookingProps tourBookingProps;
+
+    private final TourSellingPriceRepository tourSellingPriceRepository;
+
+    private final TourSellingPriceMapper tourSellingPriceMapper;
 
     public Iterable<TourResponse> getTours() {
         Iterable<Tour> tours = tourRepository.findAll();
@@ -67,5 +76,30 @@ public class TourService {
 
     public void deleteTour(Long tourId) {
         tourRepository.deleteById(tourId);
+    }
+
+    public TourSellingPriceResponse bookTour(Long tourId, Long clientId, BookTourRequest bookTourRequest) {
+        Tour tour = tourRepository.findById(tourId).get();
+        double discount = ((tour.getInitialPrice() - bookTourRequest.getSellingPrice()) * 100) / tour.getInitialPrice();
+        log.info("Discount {}", discount);
+        if (discount > tourBookingProps.getDiscount()) {
+            throw new TooMuchDiscountException(
+                    String.format("Discount %.1f exceeds the maximum discount %.1f",
+                            discount,
+                            tourBookingProps.getDiscount())
+            );
+        }
+        Client client = clientRepository.findById(clientId).get();
+
+        TourSellingPrice tourSellingPrice = TourSellingPrice.builder()
+                .id(new TourSellingPriceKey(tourId, clientId))
+                .tour(tour)
+                .client(client)
+                .sellingPrice(bookTourRequest.getSellingPrice())
+                .build();
+
+        TourSellingPrice saved = tourSellingPriceRepository.save(tourSellingPrice);
+
+        return tourSellingPriceMapper.toResponse(saved);
     }
 }

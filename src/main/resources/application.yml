@@ -6,7 +6,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   sql:
     init:
-      mode: embedded
+      mode: always
   jpa:
     hibernate:
       ddl-auto: none
