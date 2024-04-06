@@ -2,8 +2,11 @@ package com.kazmiruk.travel_agency.service;
 
 import com.kazmiruk.travel_agency.dto.ClientRequest;
 import com.kazmiruk.travel_agency.dto.ClientResponse;
+import com.kazmiruk.travel_agency.dto.TourResponse;
 import com.kazmiruk.travel_agency.mapper.ClientMapper;
+import com.kazmiruk.travel_agency.mapper.TourMapper;
 import com.kazmiruk.travel_agency.model.Client;
+import com.kazmiruk.travel_agency.model.TourSellingPrice;
 import com.kazmiruk.travel_agency.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,8 @@ public class ClientService {
     private final ClientRepository clientRepository;
 
     private final ClientMapper clientMapper;
+
+    private final TourMapper tourMapper;
 
     public Iterable<ClientResponse> getClients() {
         Iterable<Client> clients = clientRepository.findAll();
@@ -44,5 +49,10 @@ public class ClientService {
                     return clientRepository.save(newClient);
                 });
         return clientMapper.toResponse(updatedClient);
+    }
+
+    public Iterable<TourResponse> getClientTours(Long clientId) {
+        Client client = clientRepository.findById(clientId).get();
+        return tourMapper.toResponse(client.getTourSellingPrices().stream().map(TourSellingPrice::getTour).toList());
     }
 }

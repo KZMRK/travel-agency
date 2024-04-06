@@ -1,5 +1,6 @@
 package com.kazmiruk.travel_agency.model;
 
+import com.kazmiruk.travel_agency.model.key.TourSellingPriceKey;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "tour_selling_price")
 public class TourSellingPrice {
 
     @EmbeddedId

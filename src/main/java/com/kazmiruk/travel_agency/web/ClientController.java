@@ -2,6 +2,7 @@ package com.kazmiruk.travel_agency.web;
 
 import com.kazmiruk.travel_agency.dto.ClientRequest;
 import com.kazmiruk.travel_agency.dto.ClientResponse;
+import com.kazmiruk.travel_agency.dto.TourResponse;
 import com.kazmiruk.travel_agency.service.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -50,4 +51,11 @@ public class ClientController {
         clientService.deleteClient(clientId);
     }
 
+    @GetMapping("/{id}/tours")
+    public ResponseEntity<Iterable<TourResponse>> getClientTours(
+            @PathVariable("id") Long clientId
+    ) {
+        Iterable<TourResponse> tourResponses = clientService.getClientTours(clientId);
+        return ResponseEntity.ok(tourResponses);
+    }
 }

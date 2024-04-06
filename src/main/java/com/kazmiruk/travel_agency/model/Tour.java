@@ -1,14 +1,11 @@
 package com.kazmiruk.travel_agency.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @Entity
@@ -34,4 +31,7 @@ public class Tour {
 
     @ManyToOne
     private Guide guide;
+
+    @OneToMany(mappedBy = "tour")
+    private Set<TourSellingPrice> tourSellingPrices;
 }

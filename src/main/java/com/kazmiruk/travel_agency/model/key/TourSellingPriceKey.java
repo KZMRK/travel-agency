@@ -1,4 +1,4 @@
-package com.kazmiruk.travel_agency.model;
+package com.kazmiruk.travel_agency.model.key;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

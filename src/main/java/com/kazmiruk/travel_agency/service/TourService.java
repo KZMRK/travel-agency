@@ -1,13 +1,13 @@
 package com.kazmiruk.travel_agency.service;
 
-import com.kazmiruk.travel_agency.dto.BookTourRequest;
-import com.kazmiruk.travel_agency.dto.TourRequest;
-import com.kazmiruk.travel_agency.dto.TourResponse;
-import com.kazmiruk.travel_agency.dto.TourSellingPriceResponse;
+import com.kazmiruk.travel_agency.dto.*;
+import com.kazmiruk.travel_agency.mapper.ClientMapper;
 import com.kazmiruk.travel_agency.mapper.TourMapper;
 import com.kazmiruk.travel_agency.mapper.TourSellingPriceMapper;
 import com.kazmiruk.travel_agency.model.*;
+import com.kazmiruk.travel_agency.model.key.TourSellingPriceKey;
 import com.kazmiruk.travel_agency.repository.*;
+import com.kazmiruk.travel_agency.uti.error.SameTimeFrameException;
 import com.kazmiruk.travel_agency.uti.error.TooMuchDiscountException;
 import com.kazmiruk.travel_agency.uti.holder.TourBookingProps;
 import lombok.RequiredArgsConstructor;
@@ -90,6 +90,16 @@ public class TourService {
             );
         }
         Client client = clientRepository.findById(clientId).get();
+        boolean isClientHasTourAtSameTimeframe = client.getTourSellingPrices().stream()
+                .map(TourSellingPrice::getTour)
+                .anyMatch(bookedTour ->
+                        tour.getDepartureAt().isBefore(bookedTour.getReturnAt()) &&
+                                bookedTour.getDepartureAt().isBefore(tour.getReturnAt())
+                );
+
+        if (isClientHasTourAtSameTimeframe) {
+            throw new SameTimeFrameException("You can't book 2 tours at the same time");
+        }
 
         TourSellingPrice tourSellingPrice = TourSellingPrice.builder()
                 .id(new TourSellingPriceKey(tourId, clientId))
