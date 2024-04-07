@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS _user;
 
 CREATE TABLE IF NOT EXISTS "country" (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
+    name VARCHAR(80) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS "_user" (
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS "client" (
     id BIGSERIAL PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
-    passport_number VARCHAR(10) NOT NULL
+    passport_number VARCHAR(9) UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "tour_selling_price" (
