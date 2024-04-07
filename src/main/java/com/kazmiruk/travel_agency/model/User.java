@@ -2,6 +2,8 @@ package com.kazmiruk.travel_agency.model;
 
 import com.kazmiruk.travel_agency.enums.Role;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,9 +21,10 @@ public class User implements UserDetails {
     @GeneratedValue
     private Long id;
 
-    @Column(unique = true)
+    @Email
     private String email;
 
+    @NotEmpty
     @Enumerated(EnumType.STRING)
     private Role role;
 
