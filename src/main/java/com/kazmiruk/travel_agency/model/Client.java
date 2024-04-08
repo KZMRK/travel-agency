@@ -27,7 +27,7 @@ public class Client {
     private String passportNumber;
 
     @OneToMany(mappedBy = "client")
-    private List<TourSellingPrice> tourSellingPrices;
+    private List<BookedTour> bookedTours;
 
     public Client(String firstName, String lastName, String passportNumber) {
         this.firstName = firstName;

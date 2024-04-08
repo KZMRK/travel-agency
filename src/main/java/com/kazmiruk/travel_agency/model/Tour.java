@@ -45,5 +45,5 @@ public class Tour {
     private Guide guide;
 
     @OneToMany(mappedBy = "tour")
-    private Set<TourSellingPrice> tourSellingPrices;
+    private Set<BookedTour> bookedTours;
 }

@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS tour_client;
 DROP TABLE IF EXISTS guide;
-DROP TABLE IF EXISTS tour_selling_price;
+DROP TABLE IF EXISTS booked_tour;
 DROP TABLE IF EXISTS tour;
 DROP TABLE IF EXISTS country;
 DROP TABLE IF EXISTS client;
