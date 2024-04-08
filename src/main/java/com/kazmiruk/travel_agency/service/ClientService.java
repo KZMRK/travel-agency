@@ -55,4 +55,9 @@ public class ClientService {
         Client client = clientRepository.findById(clientId).get();
         return tourMapper.toResponse(client.getBookedTours().stream().map(BookedTour::getTour).toList());
     }
+
+    public Iterable<ClientResponse> getClientsWithoutToursInYear(int year) {
+        Iterable<Client> clients = clientRepository.findClientsWithoutTourInYear(year);
+        return clientMapper.toResponse(clients);
+    }
 }
