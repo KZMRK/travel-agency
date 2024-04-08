@@ -4,11 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @Entity
+@NoArgsConstructor
 public class Client {
 
     @Id
@@ -26,5 +28,11 @@ public class Client {
 
     @OneToMany(mappedBy = "client")
     private List<TourSellingPrice> tourSellingPrices;
+
+    public Client(String firstName, String lastName, String passportNumber) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.passportNumber = passportNumber;
+    }
 
 }
