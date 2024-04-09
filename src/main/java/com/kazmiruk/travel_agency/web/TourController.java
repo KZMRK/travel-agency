@@ -65,4 +65,10 @@ public class TourController {
         return ResponseEntity.ok(tourAggregateResponse);
     }
 
+    @GetMapping("/most-popular-with-lowest-selling-price")
+    public ResponseEntity<TourResponse> getMostPopularTourWithTheLowestSellingPrice() {
+        TourResponse tourResponse = tourService.getMostPopularTourWithTheLowestSellingPrice();
+        return ResponseEntity.ok(tourResponse);
+    }
+
 }

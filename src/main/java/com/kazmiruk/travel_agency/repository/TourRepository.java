@@ -18,4 +18,6 @@ public interface TourRepository extends JpaRepository<Tour, Long> {
             "FROM BookedTour bt WHERE bt.tour.id = :id GROUP BY bt.tour")
     TourAggregateResponse sumAndAvgTourSellingPrices(@Param("id") Long tourId);
 
+    @Query("SELECT bt.tour FROM BookedTour bt GROUP BY bt.tour ORDER BY COUNT(*) DESC, MIN(bt.sellingPrice) LIMIT 1")
+    Optional<Tour> findMostPopularTourWithTheLowestSellingPrice();
 }

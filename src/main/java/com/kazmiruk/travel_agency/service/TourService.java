@@ -112,4 +112,9 @@ public class TourService {
     public TourAggregateResponse getTourSumAndAvgSellingPrice(Long tourId) {
         return tourRepository.sumAndAvgTourSellingPrices(tourId);
     }
+
+    public TourResponse getMostPopularTourWithTheLowestSellingPrice() {
+        Tour tour = tourRepository.findMostPopularTourWithTheLowestSellingPrice().get();
+        return tourMapper.toResponse(tour);
+    }
 }
