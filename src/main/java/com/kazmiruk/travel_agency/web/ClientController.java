@@ -73,4 +73,10 @@ public class ClientController {
         ClientResponse clientResponse = clientService.getClientWithHighestDiscount();
         return ResponseEntity.ok(clientResponse);
     }
+
+    @GetMapping("/highest-revenue")
+    public ResponseEntity<ClientResponse> getClientGeneratedHighestRevenue() {
+        ClientResponse clientResponse = clientService.getClientGeneratedHighestRevenue();
+        return ResponseEntity.ok(clientResponse);
+    }
 }

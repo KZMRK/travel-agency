@@ -23,4 +23,9 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     @Query("SELECT bt.client FROM BookedTour bt ORDER BY bt.tour.initialPrice - bt.sellingPrice DESC LIMIT 1")
     Optional<Client> findClientWithHighestDiscount();
 
+    @Query("SELECT bt.client, SUM(bt.sellingPrice) FROM BookedTour bt " +
+            "GROUP BY bt.client " +
+            "ORDER BY SUM(bt.sellingPrice) " +
+            "DESC LIMIT 1")
+    Optional<Client> findClientGeneratedHighestRevenue();
 }

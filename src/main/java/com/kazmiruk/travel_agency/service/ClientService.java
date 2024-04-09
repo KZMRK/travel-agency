@@ -65,4 +65,9 @@ public class ClientService {
         Client client = clientRepository.findClientWithHighestDiscount().get();
         return clientMapper.toResponse(client);
     }
+
+    public ClientResponse getClientGeneratedHighestRevenue() {
+        Client client = clientRepository.findClientGeneratedHighestRevenue().get();
+        return clientMapper.toResponse(client);
+    }
 }
