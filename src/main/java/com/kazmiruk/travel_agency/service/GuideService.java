@@ -44,4 +44,9 @@ public class GuideService {
     public void deleteGuide(Long guideId) {
         guideRepository.deleteById(guideId);
     }
+
+    public GuideResponse getGuideGeneratedHighestRevenue() {
+        Guide guide = guideRepository.findGuideGeneratedHighestRevenue().get();
+        return guideMapper.toResponse(guide);
+    }
 }

@@ -41,4 +41,11 @@ public class GuideController {
     public void deleteGuide(@PathVariable("id") Long guideId) {
         guideService.deleteGuide(guideId);
     }
+
+    @GetMapping("/highest-revenue")
+    public ResponseEntity<GuideResponse> getGuideGeneratedHighestRevenue() {
+        GuideResponse guideResponse = guideService.getGuideGeneratedHighestRevenue();
+        return ResponseEntity.ok(guideResponse);
+    }
+
 }

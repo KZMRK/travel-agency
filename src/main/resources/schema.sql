@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS "tour" (
     departure_at DATE NOT NULL,
     return_at DATE NOT NULL,
     initial_price DOUBLE PRECISION NOT NULL,
-    guide_id BIGINT NOT NULL
+    guide_id BIGINT REFERENCES guide(id) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "guide" (
