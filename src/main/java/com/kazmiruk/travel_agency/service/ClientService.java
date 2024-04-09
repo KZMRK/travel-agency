@@ -60,4 +60,9 @@ public class ClientService {
         Iterable<Client> clients = clientRepository.findClientsWithoutTourInYear(year);
         return clientMapper.toResponse(clients);
     }
+
+    public ClientResponse getClientWithHighestDiscount() {
+        Client client = clientRepository.findClientWithHighestDiscount().get();
+        return clientMapper.toResponse(client);
+    }
 }

@@ -76,7 +76,7 @@ public class SampleDataLoader implements CommandLineRunner {
             );
 
             int discount = random.nextInt(tourBookingProps.getDiscount()) + 1;
-            double sellingPrice = tour.getInitialPrice() * discount;
+            double sellingPrice = tour.getInitialPrice() * (1.0 - discount / 100.0);
 
             return new BookedTour(
                     bookedTourKey,

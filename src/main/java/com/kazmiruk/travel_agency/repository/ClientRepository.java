@@ -20,4 +20,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
             @Param("year") Integer year
     );
 
+    @Query("SELECT bt.client FROM BookedTour bt ORDER BY bt.tour.initialPrice - bt.sellingPrice DESC LIMIT 1")
+    Optional<Client> findClientWithHighestDiscount();
+
 }

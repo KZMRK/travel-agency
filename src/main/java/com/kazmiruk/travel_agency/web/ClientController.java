@@ -67,4 +67,10 @@ public class ClientController {
         Iterable<ClientResponse> clientResponses = clientService.getClientsWithoutToursInYear(year);
         return ResponseEntity.ok(clientResponses);
     }
+
+    @GetMapping("/with-highest-discount")
+    public ResponseEntity<ClientResponse> getClientWithHighestDiscount() {
+        ClientResponse clientResponse = clientService.getClientWithHighestDiscount();
+        return ResponseEntity.ok(clientResponse);
+    }
 }
