@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TourSellingPriceKey implements Serializable {
+public class BookedTourKey implements Serializable {
 
     @Column(name = "tour_id")
     private Long tourId;

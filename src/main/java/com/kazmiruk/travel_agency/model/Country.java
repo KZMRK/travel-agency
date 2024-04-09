@@ -5,10 +5,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class Country {
 
     @Id
@@ -17,5 +21,9 @@ public class Country {
 
     @Size(min = 2, max = 80)
     private String name;
+
+    public Country(String name) {
+        this.name = name;
+    }
 
 }

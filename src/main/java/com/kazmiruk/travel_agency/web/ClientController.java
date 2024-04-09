@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -57,5 +58,25 @@ public class ClientController {
     ) {
         Iterable<TourResponse> tourResponses = clientService.getClientTours(clientId);
         return ResponseEntity.ok(tourResponses);
+    }
+
+    @GetMapping("/without-tours")
+    public ResponseEntity<Iterable<ClientResponse>> getClientsWithoutToursInYear(
+            @RequestParam("year") Integer year
+    ) {
+        Iterable<ClientResponse> clientResponses = clientService.getClientsWithoutToursInYear(year);
+        return ResponseEntity.ok(clientResponses);
+    }
+
+    @GetMapping("/with-highest-discount")
+    public ResponseEntity<ClientResponse> getClientWithHighestDiscount() {
+        ClientResponse clientResponse = clientService.getClientWithHighestDiscount();
+        return ResponseEntity.ok(clientResponse);
+    }
+
+    @GetMapping("/highest-revenue")
+    public ResponseEntity<ClientResponse> getClientGeneratedHighestRevenue() {
+        ClientResponse clientResponse = clientService.getClientGeneratedHighestRevenue();
+        return ResponseEntity.ok(clientResponse);
     }
 }

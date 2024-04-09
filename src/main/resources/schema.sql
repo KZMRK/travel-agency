@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS tour_client;
 DROP TABLE IF EXISTS guide;
-DROP TABLE IF EXISTS tour_selling_price;
+DROP TABLE IF EXISTS booked_tour;
 DROP TABLE IF EXISTS tour;
 DROP TABLE IF EXISTS country;
 DROP TABLE IF EXISTS client;
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS "tour" (
     departure_at DATE NOT NULL,
     return_at DATE NOT NULL,
     initial_price DOUBLE PRECISION NOT NULL,
-    guide_id BIGINT NOT NULL
+    guide_id BIGINT REFERENCES guide(id) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "guide" (

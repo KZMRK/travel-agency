@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component;
 @Data
 public class TourBookingProps {
 
-    private double discount = 20;
+    private int discount = 20;
 
 }

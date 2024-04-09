@@ -2,7 +2,12 @@
   "properties": [
     {
       "name": "tour.booking.discount",
-      "type": "java.lang.Double",
+      "type": "java.lang.Integer",
       "description": "Maximum discount with which you can book a tour."
-  }
-] }
+    },
+    {
+      "name": "database.loader",
+      "type": "java.lang.Boolean",
+      "description": "Whether to clear the database and fill all tables with random values."
+    }
+  ] }

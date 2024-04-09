@@ -6,7 +6,7 @@ import com.kazmiruk.travel_agency.dto.TourResponse;
 import com.kazmiruk.travel_agency.mapper.ClientMapper;
 import com.kazmiruk.travel_agency.mapper.TourMapper;
 import com.kazmiruk.travel_agency.model.Client;
-import com.kazmiruk.travel_agency.model.TourSellingPrice;
+import com.kazmiruk.travel_agency.model.BookedTour;
 import com.kazmiruk.travel_agency.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -53,6 +53,21 @@ public class ClientService {
 
     public Iterable<TourResponse> getClientTours(Long clientId) {
         Client client = clientRepository.findById(clientId).get();
-        return tourMapper.toResponse(client.getTourSellingPrices().stream().map(TourSellingPrice::getTour).toList());
+        return tourMapper.toResponse(client.getBookedTours().stream().map(BookedTour::getTour).toList());
+    }
+
+    public Iterable<ClientResponse> getClientsWithoutToursInYear(int year) {
+        Iterable<Client> clients = clientRepository.findClientsWithoutTourInYear(year);
+        return clientMapper.toResponse(clients);
+    }
+
+    public ClientResponse getClientWithHighestDiscount() {
+        Client client = clientRepository.findClientWithHighestDiscount().get();
+        return clientMapper.toResponse(client);
+    }
+
+    public ClientResponse getClientGeneratedHighestRevenue() {
+        Client client = clientRepository.findClientGeneratedHighestRevenue().get();
+        return clientMapper.toResponse(client);
     }
 }

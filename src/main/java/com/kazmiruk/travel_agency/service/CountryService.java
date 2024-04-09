@@ -46,4 +46,9 @@ public class CountryService {
         countryRepository.deleteById(countryId);
     }
 
+    public CountryResponse getMostPopularDestination(int year) {
+        Country country = countryRepository.findMostPopularDestinationInYear(year);
+        return countryMapper.toResponse(country);
+    }
+
 }

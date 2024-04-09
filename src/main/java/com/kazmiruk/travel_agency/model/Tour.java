@@ -3,13 +3,19 @@ package com.kazmiruk.travel_agency.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Tour {
 
     @Id
@@ -39,5 +45,5 @@ public class Tour {
     private Guide guide;
 
     @OneToMany(mappedBy = "tour")
-    private Set<TourSellingPrice> tourSellingPrices;
+    private Set<BookedTour> bookedTours;
 }
