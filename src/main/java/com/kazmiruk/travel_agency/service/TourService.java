@@ -108,4 +108,8 @@ public class TourService {
 
         return tourSellingPriceMapper.toResponse(saved);
     }
+
+    public TourAggregateResponse getTourSumAndAvgSellingPrice(Long tourId) {
+        return tourRepository.sumAndAvgTourSellingPrices(tourId);
+    }
 }

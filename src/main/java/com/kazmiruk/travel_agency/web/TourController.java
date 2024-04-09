@@ -2,9 +2,11 @@ package com.kazmiruk.travel_agency.web;
 
 import com.kazmiruk.travel_agency.dto.BookTourRequest;
 import com.kazmiruk.travel_agency.dto.CountryResponse;
+import com.kazmiruk.travel_agency.dto.TourAggregateResponse;
 import com.kazmiruk.travel_agency.dto.TourRequest;
 import com.kazmiruk.travel_agency.dto.TourResponse;
 import com.kazmiruk.travel_agency.dto.TourSellingPriceResponse;
+import com.kazmiruk.travel_agency.service.ClientService;
 import com.kazmiruk.travel_agency.service.TourService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -55,5 +57,13 @@ public class TourController {
     ) {
         TourSellingPriceResponse tourResponse = tourService.bookTour(tourId, clientId, bookTourRequest);
         return ResponseEntity.ok(tourResponse);
+    }
+
+    @GetMapping("/{id}/aggregate")
+    public ResponseEntity<TourAggregateResponse> getTourSumAndAvgSellingPrice(
+            @PathVariable("id") Long tourId
+    ) {
+        TourAggregateResponse tourAggregateResponse = tourService.getTourSumAndAvgSellingPrice(tourId);
+        return ResponseEntity.ok(tourAggregateResponse);
     }
 }
