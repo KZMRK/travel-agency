@@ -16,3 +16,9 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+database:
+  loader: true
+user:
+  email: ${USER_EMAIL}
+  password: ${USER_PASSWORD}
