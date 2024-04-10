@@ -97,7 +97,7 @@ public class SampleDataLoader implements CommandLineRunner {
             Country destination;
             do {
                 destination = countryRepository.findRandom().get();
-            } while (!departure.equals(destination));
+            } while (departure.equals(destination));
             Guide guide = guideRepository.findRandom().get();
 
             long minDay = LocalDate.now().toEpochDay();

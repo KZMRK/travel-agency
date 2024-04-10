@@ -1,7 +1,6 @@
-DROP TABLE IF EXISTS tour_client;
-DROP TABLE IF EXISTS guide;
 DROP TABLE IF EXISTS booked_tour;
 DROP TABLE IF EXISTS tour;
+DROP TABLE IF EXISTS guide;
 DROP TABLE IF EXISTS country;
 DROP TABLE IF EXISTS client;
 DROP TABLE IF EXISTS _user;
@@ -18,6 +17,12 @@ CREATE TABLE IF NOT EXISTS "_user" (
     role VARCHAR(20) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS "guide" (
+    id BIGSERIAL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS "tour" (
     id BIGSERIAL PRIMARY KEY,
     departure_id INTEGER REFERENCES country(id) NOT NULL,
@@ -28,12 +33,6 @@ CREATE TABLE IF NOT EXISTS "tour" (
     guide_id BIGINT REFERENCES guide(id) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS "guide" (
-    id BIGSERIAL PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS "client" (
     id BIGSERIAL PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
@@ -41,7 +40,7 @@ CREATE TABLE IF NOT EXISTS "client" (
     passport_number VARCHAR(9) UNIQUE NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS "tour_selling_price" (
+CREATE TABLE IF NOT EXISTS "booked_tour" (
     tour_id BIGINT REFERENCES tour(id),
     client_id BIGINT REFERENCES client(id),
     selling_price DOUBLE PRECISION NOT NULL,
