@@ -4,6 +4,7 @@ import com.kazmiruk.travel_agency.dto.ClientRequest;
 import com.kazmiruk.travel_agency.dto.ClientResponse;
 import com.kazmiruk.travel_agency.dto.TourResponse;
 import com.kazmiruk.travel_agency.service.ClientService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +28,12 @@ public class ClientController {
 
     @GetMapping
     public ResponseEntity<Iterable<ClientResponse>> getClients() {
-        Iterable<ClientResponse> clients = clientService.getClients();
-        return ResponseEntity.ok(clients);
+        Iterable<ClientResponse> clientResponses = clientService.getClients();
+        return ResponseEntity.ok(clientResponses);
     }
 
     @PostMapping
-    public ResponseEntity<ClientResponse> addClient(@RequestBody ClientRequest clientRequest) {
+    public ResponseEntity<ClientResponse> addClient(@RequestBody @Valid ClientRequest clientRequest) {
         ClientResponse clientResponse = clientService.addClient(clientRequest);
         return new ResponseEntity<>(clientResponse, HttpStatus.CREATED);
     }
@@ -40,7 +41,7 @@ public class ClientController {
     @PutMapping("/{id}")
     public ResponseEntity<ClientResponse> updateClient(
             @PathVariable("id") Long clientId,
-            @RequestBody ClientRequest clientRequest
+            @RequestBody @Valid ClientRequest clientRequest
     ) {
         ClientResponse clientResponse = clientService.updateClient(clientId, clientRequest);
         return ResponseEntity.ok(clientResponse);

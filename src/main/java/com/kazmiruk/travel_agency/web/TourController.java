@@ -6,6 +6,7 @@ import com.kazmiruk.travel_agency.dto.TourRequest;
 import com.kazmiruk.travel_agency.dto.TourResponse;
 import com.kazmiruk.travel_agency.dto.TourSellingPriceResponse;
 import com.kazmiruk.travel_agency.service.TourService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class TourController {
 
     @PostMapping
     public ResponseEntity<TourResponse> addTour(
-            @RequestBody TourRequest tourRequest
+            @RequestBody @Valid TourRequest tourRequest
     ) {
         TourResponse tourResponse = tourService.addTour(tourRequest);
         return ResponseEntity.ok(tourResponse);
@@ -35,7 +36,7 @@ public class TourController {
     @PutMapping("/{id}")
     public ResponseEntity<TourResponse> editTour(
             @PathVariable("id") Long tourId,
-            @RequestBody TourRequest tourRequest
+            @RequestBody @Valid TourRequest tourRequest
     ) {
         TourResponse tourResponse = tourService.editTour(tourId, tourRequest);
         return ResponseEntity.ok(tourResponse);
@@ -51,7 +52,7 @@ public class TourController {
     public ResponseEntity<TourSellingPriceResponse> bookTour(
             @PathVariable Long tourId,
             @PathVariable Long clientId,
-            @RequestBody BookTourRequest bookTourRequest
+            @RequestBody @Valid BookTourRequest bookTourRequest
     ) {
         TourSellingPriceResponse tourResponse = tourService.bookTour(tourId, clientId, bookTourRequest);
         return ResponseEntity.ok(tourResponse);

@@ -3,6 +3,7 @@ package com.kazmiruk.travel_agency.web;
 import com.kazmiruk.travel_agency.dto.GuideRequest;
 import com.kazmiruk.travel_agency.dto.GuideResponse;
 import com.kazmiruk.travel_agency.service.GuideService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class GuideController {
     }
 
     @PostMapping
-    public ResponseEntity<GuideResponse> addGuide(@RequestBody GuideRequest guideRequest) {
+    public ResponseEntity<GuideResponse> addGuide(@RequestBody @Valid GuideRequest guideRequest) {
         GuideResponse guideResponse = guideService.addGuide(guideRequest);
         return new ResponseEntity<>(guideResponse, HttpStatus.CREATED);
     }
@@ -30,7 +31,7 @@ public class GuideController {
     @PutMapping("/{id}")
     public ResponseEntity<GuideResponse> editGuide(
             @PathVariable("id") Long guideId,
-            @RequestBody GuideRequest guideRequest
+            @RequestBody @Valid GuideRequest guideRequest
     ) {
         GuideResponse guideResponse = guideService.editGuide(guideId, guideRequest);
         return ResponseEntity.ok(guideResponse);

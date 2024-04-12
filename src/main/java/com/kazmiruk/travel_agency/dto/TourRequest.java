@@ -1,6 +1,7 @@
 package com.kazmiruk.travel_agency.dto;
 
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -15,13 +16,13 @@ public class TourRequest {
     @NotNull
     private CountryDto destination;
 
-    @Future(message = "The date must be in the future")
+    @Future(message = "{date.future}")
     private LocalDate departureAt;
 
-    @Future(message = "The date must be in the future")
+    @Future(message = "{date.future}")
     private LocalDate returnAt;
 
-    @NotNull
+    @Min(value = 1, message = "{price.min}")
     private Double initialPrice;
 
     @NotNull
