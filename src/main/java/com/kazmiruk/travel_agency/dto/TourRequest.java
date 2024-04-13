@@ -1,5 +1,6 @@
 package com.kazmiruk.travel_agency.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -10,9 +11,11 @@ import java.time.LocalDate;
 @Data
 public class TourRequest {
 
+    @Valid
     @NotNull
     private CountryDto departure;
 
+    @Valid
     @NotNull
     private CountryDto destination;
 
@@ -25,6 +28,7 @@ public class TourRequest {
     @Min(value = 1, message = "{price.min}")
     private Double initialPrice;
 
+    @Valid
     @NotNull
     private GuideDto guide;
 

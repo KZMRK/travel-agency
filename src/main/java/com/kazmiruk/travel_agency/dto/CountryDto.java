@@ -1,9 +1,10 @@
 package com.kazmiruk.travel_agency.dto;
 
+import com.kazmiruk.travel_agency.uti.validation.RequestBodyNestedEntity;
 import lombok.Data;
 
 @Data
-// TODO cross field validation
+@RequestBodyNestedEntity(idFieldName = "id")
 public class CountryDto {
 
 
