@@ -13,6 +13,7 @@ public interface TourMapper {
 
     Iterable<TourResponse> toResponse(Iterable<Tour> tours);
 
+    @Mapping(target = "bookedTours", ignore = true)
     @Mapping(target = "id", ignore = true)
     Tour toEntity(TourRequest tourRequest);
 

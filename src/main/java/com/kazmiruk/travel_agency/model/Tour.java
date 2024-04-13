@@ -2,6 +2,7 @@ package com.kazmiruk.travel_agency.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,6 +39,7 @@ public class Tour {
     private LocalDate returnAt;
 
     @NotNull
+    @Min(value = 1, message = "{price.min}")
     private Double initialPrice;
 
     @ManyToOne
