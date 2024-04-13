@@ -5,6 +5,7 @@ import com.kazmiruk.travel_agency.dto.CountryResponse;
 import com.kazmiruk.travel_agency.mapper.CountryMapper;
 import com.kazmiruk.travel_agency.model.Country;
 import com.kazmiruk.travel_agency.repository.CountryRepository;
+import com.kazmiruk.travel_agency.uti.error.CountryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +44,10 @@ public class CountryService {
     }
 
     public void deleteCountry(Integer countryId) {
-        countryRepository.deleteById(countryId);
+        Country country = countryRepository.findById(countryId).orElseThrow(() ->
+                new CountryNotFoundException("Country with id " + countryId + " not found")
+        );
+        countryRepository.delete(country);
     }
 
     public CountryResponse getMostPopularDestination(int year) {

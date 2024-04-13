@@ -5,6 +5,7 @@ import com.kazmiruk.travel_agency.dto.GuideResponse;
 import com.kazmiruk.travel_agency.mapper.GuideMapper;
 import com.kazmiruk.travel_agency.model.Guide;
 import com.kazmiruk.travel_agency.repository.GuideRepository;
+import com.kazmiruk.travel_agency.uti.error.GuideNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -42,11 +43,16 @@ public class GuideService {
     }
 
     public void deleteGuide(Long guideId) {
-        guideRepository.deleteById(guideId);
+        Guide guide = guideRepository.findById(guideId).orElseThrow(() ->
+                new GuideNotFoundException("Guide with id " + guideId + " not found")
+        );
+        guideRepository.delete(guide);
     }
 
     public GuideResponse getGuideGeneratedHighestRevenue() {
-        Guide guide = guideRepository.findGuideGeneratedHighestRevenue().get();
+        Guide guide = guideRepository.findGuideGeneratedHighestRevenue().orElseThrow(() ->
+                new GuideNotFoundException("Guide not found")
+        );
         return guideMapper.toResponse(guide);
     }
 }

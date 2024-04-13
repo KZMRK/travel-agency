@@ -6,8 +6,12 @@ import com.kazmiruk.travel_agency.mapper.TourSellingPriceMapper;
 import com.kazmiruk.travel_agency.model.*;
 import com.kazmiruk.travel_agency.model.key.BookedTourKey;
 import com.kazmiruk.travel_agency.repository.*;
+import com.kazmiruk.travel_agency.uti.error.ClientNotFoundException;
+import com.kazmiruk.travel_agency.uti.error.CountryNotFoundException;
+import com.kazmiruk.travel_agency.uti.error.GuideNotFoundException;
 import com.kazmiruk.travel_agency.uti.error.SameTimeFrameException;
 import com.kazmiruk.travel_agency.uti.error.TooMuchDiscountException;
+import com.kazmiruk.travel_agency.uti.error.TourNotFoundException;
 import com.kazmiruk.travel_agency.uti.holder.TourBookingProps;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -52,7 +56,9 @@ public class TourService {
         if (Objects.isNull(country.getId())) {
             return countryRepository.save(country);
         } else {
-            return countryRepository.findById(country.getId()).get();
+            return countryRepository.findById(country.getId()).orElseThrow(() ->
+                    new CountryNotFoundException("Country with id " + country.getId() + " not found")
+            );
         }
     }
 
@@ -60,7 +66,9 @@ public class TourService {
         if (Objects.isNull(guide.getId())) {
             return guideRepository.save(guide);
         } else {
-            return guideRepository.findById(guide.getId()).get();
+            return guideRepository.findById(guide.getId()).orElseThrow(() ->
+                    new GuideNotFoundException("Guide with id " + guide.getId() + " not found")
+            );
         }
     }
 
@@ -76,16 +84,22 @@ public class TourService {
     }
 
     public TourSellingPriceResponse bookTour(Long tourId, Long clientId, BookTourRequest bookTourRequest) {
-        Tour tour = tourRepository.findById(tourId).get();
+        Tour tour = tourRepository.findById(tourId).orElseThrow(() ->
+                new TourNotFoundException("Tour with id " + tourId + " not found")
+        );
         double discount = ((tour.getInitialPrice() - bookTourRequest.getSellingPrice()) * 100) / tour.getInitialPrice();
         if (discount > tourBookingProps.getDiscount()) {
             throw new TooMuchDiscountException(
-                    String.format("Discount %.1f exceeds the maximum discount %d",
+                    String.format("Discount %.1f%% exceeds the maximum discount %d%% (min selling price - %.1f)",
                             discount,
-                            tourBookingProps.getDiscount())
+                            tourBookingProps.getDiscount(),
+                            tour.getInitialPrice() * (1.0 - tourBookingProps.getDiscount() / 100.0)
+                    )
             );
         }
-        Client client = clientRepository.findById(clientId).get();
+        Client client = clientRepository.findById(clientId).orElseThrow(() ->
+                new ClientNotFoundException("Client with id " + clientId + " not found")
+        );
         boolean isClientHasTourAtSameTimeframe = client.getBookedTours().stream()
                 .map(BookedTour::getTour)
                 .anyMatch(bookedTour ->
@@ -114,7 +128,9 @@ public class TourService {
     }
 
     public TourResponse getMostPopularTourWithTheLowestSellingPrice() {
-        Tour tour = tourRepository.findMostPopularTourWithTheLowestSellingPrice().get();
+        Tour tour = tourRepository.findMostPopularTourWithTheLowestSellingPrice().orElseThrow(() ->
+                new TourNotFoundException("Tour not found")
+        );
         return tourMapper.toResponse(tour);
     }
 }

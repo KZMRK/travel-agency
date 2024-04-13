@@ -8,7 +8,10 @@ import com.kazmiruk.travel_agency.mapper.TourMapper;
 import com.kazmiruk.travel_agency.model.Client;
 import com.kazmiruk.travel_agency.model.BookedTour;
 import com.kazmiruk.travel_agency.repository.ClientRepository;
+import com.kazmiruk.travel_agency.uti.error.ClientNotFoundException;
+import com.kazmiruk.travel_agency.uti.error.PassportNumberAlreadyExistException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,12 +31,21 @@ public class ClientService {
 
     public ClientResponse addClient(ClientRequest clientRequest) {
         Client client = clientMapper.toEntity(clientRequest);
-        Client savedClient = clientRepository.save(client);
-        return clientMapper.toResponse(savedClient);
+        try {
+            Client savedClient = clientRepository.save(client);
+            return clientMapper.toResponse(savedClient);
+        } catch (DataIntegrityViolationException e) {
+            throw new PassportNumberAlreadyExistException(
+                    "Client with passport number '" + clientRequest.getPassportNumber() + "' already exist"
+            );
+        }
     }
 
     public void deleteClient(Long clientId) {
-        clientRepository.deleteById(clientId);
+        Client client = clientRepository.findById(clientId).orElseThrow(() ->
+                new ClientNotFoundException("Client with id " + clientId + " not found")
+        );
+        clientRepository.delete(client);
     }
 
     public ClientResponse updateClient(Long clientId, ClientRequest clientRequest) {
@@ -52,7 +64,9 @@ public class ClientService {
     }
 
     public Iterable<TourResponse> getClientTours(Long clientId) {
-        Client client = clientRepository.findById(clientId).get();
+        Client client = clientRepository.findById(clientId).orElseThrow(() ->
+                new ClientNotFoundException("Client with id " + clientId + " not found")
+        );
         return tourMapper.toResponse(client.getBookedTours().stream().map(BookedTour::getTour).toList());
     }
 
@@ -62,12 +76,16 @@ public class ClientService {
     }
 
     public ClientResponse getClientWithHighestDiscount() {
-        Client client = clientRepository.findClientWithHighestDiscount().get();
+        Client client = clientRepository.findClientWithHighestDiscount().orElseThrow(() ->
+                new ClientNotFoundException("Client not found")
+        );
         return clientMapper.toResponse(client);
     }
 
     public ClientResponse getClientGeneratedHighestRevenue() {
-        Client client = clientRepository.findClientGeneratedHighestRevenue().get();
+        Client client = clientRepository.findClientGeneratedHighestRevenue().orElseThrow(() ->
+                new ClientNotFoundException("Client not found")
+        );
         return clientMapper.toResponse(client);
     }
 }
