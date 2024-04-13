@@ -55,11 +55,8 @@ public class ClientService {
                     client.setLastName(clientRequest.getLastName());
                     client.setPassportNumber(clientRequest.getPassportNumber());
                     return clientRepository.save(client);
-                }).orElseGet(() -> {
-                    Client newClient = clientMapper.toEntity(clientRequest);
-                    newClient.setId(clientId);
-                    return clientRepository.save(newClient);
-                });
+                }).orElseThrow(() -> new ClientNotFoundException("Client with id " + clientId + " not found"));
+
         return clientMapper.toResponse(updatedClient);
     }
 

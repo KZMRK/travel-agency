@@ -34,11 +34,7 @@ public class GuideService {
                     guide.setFirstName(guideRequest.getFirstName());
                     guide.setLastName(guideRequest.getLastName());
                     return guideRepository.save(guide);
-                }).orElseGet(() -> {
-                    Guide newGuide = guideMapper.toEntity(guideRequest);
-                    newGuide.setId(guideId);
-                    return guideRepository.save(newGuide);
-                });
+                }).orElseThrow(() -> new GuideNotFoundException("Guide with id " + guideId + " not found"));
         return guideMapper.toResponse(updatedGuide);
     }
 

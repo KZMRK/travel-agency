@@ -1,6 +1,8 @@
 package com.kazmiruk.travel_agency.service;
 
 import com.kazmiruk.travel_agency.dto.*;
+import com.kazmiruk.travel_agency.mapper.CountryMapper;
+import com.kazmiruk.travel_agency.mapper.GuideMapper;
 import com.kazmiruk.travel_agency.mapper.TourMapper;
 import com.kazmiruk.travel_agency.mapper.TourSellingPriceMapper;
 import com.kazmiruk.travel_agency.model.*;
@@ -38,6 +40,10 @@ public class TourService {
 
     private final TourSellingPriceMapper tourSellingPriceMapper;
 
+    private final CountryMapper countryMapper;
+
+    private final GuideMapper guideMapper;
+
     public Iterable<TourResponse> getTours() {
         Iterable<Tour> tours = tourRepository.findAll();
         return tourMapper.toResponse(tours);
@@ -74,9 +80,30 @@ public class TourService {
 
 
     public TourResponse editTour(Long tourId, TourRequest tourRequest) {
-        Tour tour = tourMapper.toEntity(tourRequest);
-        tour.setId(tourId);
-        return tourMapper.toResponse(tourRepository.save(tour));
+        Tour updatedTour = tourRepository.findById(tourId)
+                .map(tour -> {
+                    tour.setDestination(
+                            getCountryIfExistOrSaveAndGet(
+                                    countryMapper.toEntity(tourRequest.getDestination())
+                            )
+                    );
+                    tour.setDeparture(
+                            getCountryIfExistOrSaveAndGet(
+                                    countryMapper.toEntity(tourRequest.getDeparture())
+                            )
+                    );
+                    tour.setDepartureAt(tourRequest.getDepartureAt());
+                    tour.setReturnAt(tourRequest.getReturnAt());
+                    tour.setGuide(
+                            getGuideIfExistOrSaveAndGet(
+                                    guideMapper.toEntity(tourRequest.getGuide())
+                            )
+                    );
+                    tour.setInitialPrice(tourRequest.getInitialPrice());
+                    return tourRepository.save(tour);
+                })
+                .orElseThrow(() -> new GuideNotFoundException("Tour with id " + tourId + " not found"));
+        return tourMapper.toResponse(updatedTour);
     }
 
     public void deleteTour(Long tourId) {

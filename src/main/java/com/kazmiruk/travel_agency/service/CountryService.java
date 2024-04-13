@@ -32,14 +32,10 @@ public class CountryService {
 
     public CountryResponse updateCountry(Integer countryId, CountryRequest countryRequest) {
         Country updatedCountry = countryRepository.findById(countryId)
-                .map(country ->{
+                .map(country -> {
                     country.setName(countryRequest.getName());
                     return countryRepository.save(country);
-                }).orElseGet(()  -> {
-                    Country newCountry = countryMapper.toEntity(countryRequest);
-                    newCountry.setId(countryId);
-                    return countryRepository.save(newCountry);
-                });
+                }).orElseThrow(() -> new CountryNotFoundException("Country with id " + countryId + " not found"));
         return countryMapper.toResponse(updatedCountry);
     }
 

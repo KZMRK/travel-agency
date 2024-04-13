@@ -1,1 +1,0 @@
-INSERT INTO "_user" (email, password, role) VALUES ('dima.kazmiruk.05@gmail.com', '$2a$12$vcZgtFBRaE1MXICd1JjukO1Vbg.9KMe18iwcEMiRMrUKcNvD2ZFUe', 'ROLE_ADMIN');
