@@ -5,7 +5,10 @@ import com.kazmiruk.travel_agency.dto.GuideResponse;
 import com.kazmiruk.travel_agency.mapper.GuideMapper;
 import com.kazmiruk.travel_agency.model.Guide;
 import com.kazmiruk.travel_agency.repository.GuideRepository;
+import com.kazmiruk.travel_agency.uti.error.GuideCantBeDeletedException;
+import com.kazmiruk.travel_agency.uti.error.GuideNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,20 +36,25 @@ public class GuideService {
                     guide.setFirstName(guideRequest.getFirstName());
                     guide.setLastName(guideRequest.getLastName());
                     return guideRepository.save(guide);
-                }).orElseGet(() -> {
-                    Guide newGuide = guideMapper.toEntity(guideRequest);
-                    newGuide.setId(guideId);
-                    return guideRepository.save(newGuide);
-                });
+                }).orElseThrow(() -> new GuideNotFoundException("Guide with id " + guideId + " not found"));
         return guideMapper.toResponse(updatedGuide);
     }
 
     public void deleteGuide(Long guideId) {
-        guideRepository.deleteById(guideId);
+        Guide guide = guideRepository.findById(guideId).orElseThrow(() ->
+                new GuideNotFoundException("Guide with id " + guideId + " not found")
+        );
+        try {
+            guideRepository.delete(guide);
+        } catch (DataIntegrityViolationException e) {
+            throw new GuideCantBeDeletedException("The guide with id " + guideId + " is used to manage tours");
+        }
     }
 
     public GuideResponse getGuideGeneratedHighestRevenue() {
-        Guide guide = guideRepository.findGuideGeneratedHighestRevenue().get();
+        Guide guide = guideRepository.findGuideGeneratedHighestRevenue().orElseThrow(() ->
+                new GuideNotFoundException("Guide not found")
+        );
         return guideMapper.toResponse(guide);
     }
 }

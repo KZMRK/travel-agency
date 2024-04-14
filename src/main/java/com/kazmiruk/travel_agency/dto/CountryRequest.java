@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class CountryRequest {
 
-    @Size(min = 2, max = 80)
+    @Size(min = 2, max = 80, message = "{country.name.size}")
     private String name;
 
 }

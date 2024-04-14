@@ -16,8 +16,13 @@ public interface TourRepository extends JpaRepository<Tour, Long> {
 
     @Query("SELECT new com.kazmiruk.travel_agency.dto.TourAggregateResponse(SUM(bt.sellingPrice), AVG(bt.sellingPrice)) " +
             "FROM BookedTour bt WHERE bt.tour.id = :id GROUP BY bt.tour")
-    TourAggregateResponse sumAndAvgTourSellingPrices(@Param("id") Long tourId);
+    Optional<TourAggregateResponse> sumAndAvgTourSellingPrices(@Param("id") Long tourId);
 
-    @Query("SELECT bt.tour FROM BookedTour bt GROUP BY bt.tour ORDER BY COUNT(*) DESC, MIN(bt.sellingPrice) LIMIT 1")
+    @Query("SELECT tour FROM " +
+            "   (SELECT bt.tour tour, MIN(bt.sellingPrice) min_selling_price " +
+            "   FROM BookedTour bt " +
+            "   GROUP BY bt.tour " +
+            "   ORDER BY COUNT(*) DESC LIMIT 3) " +
+            "ORDER BY min_selling_price ASC LIMIT 1")
     Optional<Tour> findMostPopularTourWithTheLowestSellingPrice();
 }

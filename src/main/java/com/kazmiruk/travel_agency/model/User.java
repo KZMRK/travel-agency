@@ -3,8 +3,8 @@ package com.kazmiruk.travel_agency.model;
 import com.kazmiruk.travel_agency.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,20 +15,26 @@ import java.util.Collections;
 @Data
 @Entity
 @Table(name = "_user")
+@NoArgsConstructor
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Email
     private String email;
 
-    @NotEmpty
     @Enumerated(EnumType.STRING)
     private Role role;
 
     private String password;
+
+    public User(String email, Role role, String password) {
+        this.email = email;
+        this.role = role;
+        this.password = password;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -19,7 +19,7 @@ public class Country {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Size(min = 2, max = 80)
+    @Size(min = 2, max = 80, message = "{country.name.size}")
     private String name;
 
     public Country(String name) {
