@@ -10,12 +10,15 @@ import com.kazmiruk.travel_agency.model.key.BookedTourKey;
 import com.kazmiruk.travel_agency.repository.*;
 import com.kazmiruk.travel_agency.uti.error.ClientNotFoundException;
 import com.kazmiruk.travel_agency.uti.error.CountryNotFoundException;
+import com.kazmiruk.travel_agency.uti.error.CountryWithNameAlreadyExistException;
 import com.kazmiruk.travel_agency.uti.error.GuideNotFoundException;
 import com.kazmiruk.travel_agency.uti.error.SameTimeFrameException;
 import com.kazmiruk.travel_agency.uti.error.TooMuchDiscountException;
+import com.kazmiruk.travel_agency.uti.error.TourCantBeDeletedException;
 import com.kazmiruk.travel_agency.uti.error.TourNotFoundException;
 import com.kazmiruk.travel_agency.uti.holder.TourBookingProps;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -60,7 +63,11 @@ public class TourService {
 
     private Country getCountryIfExistOrSaveAndGet(Country country) {
         if (Objects.isNull(country.getId())) {
-            return countryRepository.save(country);
+            try {
+                return countryRepository.save(country);
+            } catch (DataIntegrityViolationException e) {
+                throw new CountryWithNameAlreadyExistException("Country with name '" + country.getName() + "' already exist");
+            }
         } else {
             return countryRepository.findById(country.getId()).orElseThrow(() ->
                     new CountryNotFoundException("Country with id " + country.getId() + " not found")
@@ -79,7 +86,7 @@ public class TourService {
     }
 
 
-    public TourResponse editTour(Long tourId, TourRequest tourRequest) {
+    public TourResponse updateTour(Long tourId, TourRequest tourRequest) {
         Tour updatedTour = tourRepository.findById(tourId)
                 .map(tour -> {
                     tour.setDestination(
@@ -107,13 +114,22 @@ public class TourService {
     }
 
     public void deleteTour(Long tourId) {
-        tourRepository.deleteById(tourId);
+        Tour tour = tourRepository.findById(tourId).orElseThrow(() -> new TourNotFoundException("Tour with id " + tourId + " not found"));
+        try {
+            tourRepository.delete(tour);
+        } catch (DataIntegrityViolationException e) {
+            throw new TourCantBeDeletedException("Tour with id " + tourId + " is booked by client/clients");
+        }
     }
 
     public TourSellingPriceResponse bookTour(Long tourId, Long clientId, BookTourRequest bookTourRequest) {
         Tour tour = tourRepository.findById(tourId).orElseThrow(() ->
                 new TourNotFoundException("Tour with id " + tourId + " not found")
         );
+        Client client = clientRepository.findById(clientId).orElseThrow(() ->
+                new ClientNotFoundException("Client with id " + clientId + " not found")
+        );
+
         double discount = ((tour.getInitialPrice() - bookTourRequest.getSellingPrice()) * 100) / tour.getInitialPrice();
         if (discount > tourBookingProps.getDiscount()) {
             throw new TooMuchDiscountException(
@@ -124,9 +140,7 @@ public class TourService {
                     )
             );
         }
-        Client client = clientRepository.findById(clientId).orElseThrow(() ->
-                new ClientNotFoundException("Client with id " + clientId + " not found")
-        );
+
         boolean isClientHasTourAtSameTimeframe = client.getBookedTours().stream()
                 .map(BookedTour::getTour)
                 .anyMatch(bookedTour ->
@@ -151,7 +165,7 @@ public class TourService {
     }
 
     public TourAggregateResponse getTourSumAndAvgSellingPrice(Long tourId) {
-        return tourRepository.sumAndAvgTourSellingPrices(tourId);
+        return tourRepository.sumAndAvgTourSellingPrices(tourId).orElseThrow(() -> new TourNotFoundException("Tour with id " + tourId + " not found"));
     }
 
     public TourResponse getMostPopularTourWithTheLowestSellingPrice() {

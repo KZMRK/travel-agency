@@ -16,7 +16,7 @@ public interface TourRepository extends JpaRepository<Tour, Long> {
 
     @Query("SELECT new com.kazmiruk.travel_agency.dto.TourAggregateResponse(SUM(bt.sellingPrice), AVG(bt.sellingPrice)) " +
             "FROM BookedTour bt WHERE bt.tour.id = :id GROUP BY bt.tour")
-    TourAggregateResponse sumAndAvgTourSellingPrices(@Param("id") Long tourId);
+    Optional<TourAggregateResponse> sumAndAvgTourSellingPrices(@Param("id") Long tourId);
 
     @Query("SELECT tour FROM " +
             "   (SELECT bt.tour tour, MIN(bt.sellingPrice) min_selling_price " +

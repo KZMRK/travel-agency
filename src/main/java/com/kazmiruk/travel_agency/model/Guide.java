@@ -22,14 +22,14 @@ public class Guide {
 
     @Size(min = 2, max = 50, message = "{firstname.size}")
     @Pattern(
-            regexp = "^[A-Za-z-]+$",
+            regexp = "^[A-Za-z-']+$",
             message = "{firstname.pattern}"
     )
     private String firstName;
 
     @Size(min = 2, max = 50, message = "{lastname.size}")
     @Pattern(
-            regexp = "^[A-Za-z-]+$",
+            regexp = "^[A-Za-z-']+$",
             message = "{lastname.pattern}"
     )
     private String lastName;

@@ -19,14 +19,14 @@ public class Client {
 
     @Size(min = 2, max = 50, message = "{firstname.size}")
     @Pattern(
-            regexp = "^[A-Za-z-]+$",
+            regexp = "^[A-Za-z-']+$",
             message = "{firstname.pattern}"
     )
     private String firstName;
 
     @Size(min = 2, max = 50, message = "{lastname.size}")
     @Pattern(
-            regexp = "^[A-Za-z-]+$",
+            regexp = "^[A-Za-z-']+$",
             message = "{lastname.pattern}"
     )
     private String lastName;
@@ -34,7 +34,7 @@ public class Client {
     @Pattern(regexp="\\d{9}", message = "{passport-number.pattern}")
     private String passportNumber;
 
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", cascade = CascadeType.REMOVE)
     private List<BookedTour> bookedTours;
 
     public Client(String firstName, String lastName, String passportNumber) {

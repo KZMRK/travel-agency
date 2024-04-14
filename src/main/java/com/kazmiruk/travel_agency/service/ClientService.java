@@ -54,7 +54,13 @@ public class ClientService {
                     client.setFirstName(clientRequest.getFirstName());
                     client.setLastName(clientRequest.getLastName());
                     client.setPassportNumber(clientRequest.getPassportNumber());
-                    return clientRepository.save(client);
+                    try {
+                        return clientRepository.save(client);
+                    } catch (DataIntegrityViolationException e) {
+                        throw new PassportNumberAlreadyExistException(
+                                "Client with passport number '" + clientRequest.getPassportNumber() + "' already exist"
+                        );
+                    }
                 }).orElseThrow(() -> new ClientNotFoundException("Client with id " + clientId + " not found"));
 
         return clientMapper.toResponse(updatedClient);

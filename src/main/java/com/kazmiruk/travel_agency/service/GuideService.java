@@ -5,8 +5,10 @@ import com.kazmiruk.travel_agency.dto.GuideResponse;
 import com.kazmiruk.travel_agency.mapper.GuideMapper;
 import com.kazmiruk.travel_agency.model.Guide;
 import com.kazmiruk.travel_agency.repository.GuideRepository;
+import com.kazmiruk.travel_agency.uti.error.GuideCantBeDeletedException;
 import com.kazmiruk.travel_agency.uti.error.GuideNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,7 +44,11 @@ public class GuideService {
         Guide guide = guideRepository.findById(guideId).orElseThrow(() ->
                 new GuideNotFoundException("Guide with id " + guideId + " not found")
         );
-        guideRepository.delete(guide);
+        try {
+            guideRepository.delete(guide);
+        } catch (DataIntegrityViolationException e) {
+            throw new GuideCantBeDeletedException("The guide with id " + guideId + " is used to manage tours");
+        }
     }
 
     public GuideResponse getGuideGeneratedHighestRevenue() {

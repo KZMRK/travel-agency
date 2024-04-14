@@ -19,11 +19,11 @@ import com.kazmiruk.travel_agency.uti.holder.DBFillingProps;
 import com.kazmiruk.travel_agency.uti.holder.TourBookingProps;
 import com.kazmiruk.travel_agency.uti.holder.UserProps;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -37,7 +37,6 @@ import java.util.stream.Stream;
         value = "loader",
         havingValue = "true"
 )
-@Slf4j
 public class SampleDataLoader implements CommandLineRunner {
 
     private final Faker faker;
@@ -61,6 +60,8 @@ public class SampleDataLoader implements CommandLineRunner {
     private final TourRepository tourRepository;
 
     private final BookedTourRepository bookedTourRepository;
+
+    private final Random random;
 
 
     @Override
@@ -86,12 +87,10 @@ public class SampleDataLoader implements CommandLineRunner {
                 Role.ROLE_ADMIN,
                 passwordEncoder.encode(userProps.getPassword())
         );
-        log.info("User: {}",  user);
         userRepository.save(user);
     }
 
     private void loadRandomTours() {
-        Random random = new Random();
         List<Tour> tours = Stream.generate(() -> {
             Country departure = countryRepository.findRandom().get();
             Country destination;
@@ -158,8 +157,6 @@ public class SampleDataLoader implements CommandLineRunner {
     }
 
     private void joinClientsWithTours() {
-        Random random = new Random();
-
         List<BookedTour> bookedTours = Stream.generate(() -> {
                     Tour tour = tourRepository.findRandomTour().get();
                     Client client = clientRepository.findRandom().get();
@@ -183,4 +180,5 @@ public class SampleDataLoader implements CommandLineRunner {
 
         bookedTourRepository.saveAll(bookedTours);
     }
+
 }
