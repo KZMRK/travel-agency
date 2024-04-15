@@ -8,6 +8,7 @@ import com.kazmiruk.travel_agency.mapper.TourSellingPriceMapper;
 import com.kazmiruk.travel_agency.model.*;
 import com.kazmiruk.travel_agency.model.key.BookedTourKey;
 import com.kazmiruk.travel_agency.repository.*;
+import com.kazmiruk.travel_agency.uti.error.BookedTourNotFoundException;
 import com.kazmiruk.travel_agency.uti.error.ClientNotFoundException;
 import com.kazmiruk.travel_agency.uti.error.CountryNotFoundException;
 import com.kazmiruk.travel_agency.uti.error.CountryWithNameAlreadyExistException;
@@ -173,5 +174,13 @@ public class TourService {
                 new TourNotFoundException("Tour not found")
         );
         return tourMapper.toResponse(tour);
+    }
+
+    public void cancelBooking(Long tourId, Long clientId) {
+        BookedTourKey bookedTourKey = new BookedTourKey(tourId, clientId);
+        bookedTourRepository.findById(bookedTourKey).orElseThrow(() ->
+                new BookedTourNotFoundException("Client with id " + clientId + " didn't book a tour with id " + tourId)
+        );
+        bookedTourRepository.deleteById(bookedTourKey);
     }
 }

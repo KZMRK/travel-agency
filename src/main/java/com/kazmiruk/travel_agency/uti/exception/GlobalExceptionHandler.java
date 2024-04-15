@@ -1,6 +1,7 @@
 package com.kazmiruk.travel_agency.uti.exception;
 
 import com.kazmiruk.travel_agency.dto.ErrorDto;
+import com.kazmiruk.travel_agency.uti.error.BookedTourNotFoundException;
 import com.kazmiruk.travel_agency.uti.error.ClientNotFoundException;
 import com.kazmiruk.travel_agency.uti.error.CountryCantBeDeletedException;
 import com.kazmiruk.travel_agency.uti.error.CountryNotFoundException;
@@ -53,6 +54,7 @@ public class GlobalExceptionHandler {
             GuideNotFoundException.class,
             ClientNotFoundException.class,
             TourNotFoundException.class,
+            BookedTourNotFoundException.class
     })
     public ResponseEntity<ErrorDto> handleNotFoundException(RuntimeException e) {
         ErrorDto errorDto = new ErrorDto(

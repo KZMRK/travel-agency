@@ -229,4 +229,32 @@ public class TourController {
         return ResponseEntity.ok(tourResponse);
     }
 
+    @Operation(
+            summary = "Cancel the client's booking",
+            responses = {
+                    @ApiResponse(
+                            description = "204",
+                            responseCode = "Booking canceled"
+                    ),
+                    @ApiResponse(
+                            description = "404",
+                            responseCode = "Booking not found",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorDto.class)
+                            )
+                    )
+            }
+    )
+    @DeleteMapping("/{tourId}/clients/{clientId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cancelBooking(
+            @Parameter(name = "tourId", description = "id of booked tour")
+            @PathVariable("tourId") Long tourId,
+            @Parameter(name = "clientId", description = "id of client")
+            @PathVariable("clientId") Long clientId
+    ) {
+        tourService.cancelBooking(tourId, clientId);
+    }
+
 }
