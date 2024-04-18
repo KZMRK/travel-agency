@@ -1,11 +1,10 @@
-package com.kazmiruk.travel_agency.uti.holder;
+package com.kazmiruk.travel_agency.model.properties;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
@@ -13,10 +12,9 @@ import org.springframework.validation.annotation.Validated;
 @Component
 @ConfigurationProperties(prefix = "user")
 @Validated
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserProps {
+@Getter
+@Setter
+public class UserProperties {
 
     @Email
     @NotBlank

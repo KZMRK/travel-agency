@@ -74,7 +74,7 @@ public class CountryService {
     }
 
     @Transactional(readOnly = true)
-    public CountryDto getMostPopularDestination(int year) {
+    public CountryDto getMostPopularDestinationInYear(int year) {
         Country country = countryRepository.findMostPopularDestinationInYear(year).orElseThrow(() ->
                 new BadRequestException(
                         NO_TOURS_IN_YEAR.getMessage().formatted(year)

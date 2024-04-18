@@ -52,10 +52,9 @@ public class ClientService {
     @Transactional(readOnly = true)
     public Set<ClientDto> getAllClients() {
         List<Client> clients = clientRepository.findAll();
-        Set<ClientDto> clientResponses = clients.stream()
+        return clients.stream()
                 .map(clientMapper::toDto)
-                .collect(Collectors.toSet());;
-        return clientResponses;
+                .collect(Collectors.toSet());
     }
 
     @Transactional
