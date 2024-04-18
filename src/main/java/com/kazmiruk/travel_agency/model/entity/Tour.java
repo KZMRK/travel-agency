@@ -1,35 +1,37 @@
-package com.kazmiruk.travel_agency.model;
+package com.kazmiruk.travel_agency.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @Entity
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "tours")
 public class Tour {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @ManyToOne
-    @NotNull
     private Country departure;
 
     @ManyToOne
-    @NotNull
     private Country destination;
 
     @JsonFormat(pattern="yyyy-MM-dd")
@@ -38,14 +40,12 @@ public class Tour {
     @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate returnAt;
 
-    @NotNull
     @Min(value = 1, message = "{price.min}")
-    private Double initialPrice;
+    private BigDecimal initialPrice;
 
     @ManyToOne
-    @NotNull
     private Guide guide;
 
     @OneToMany(mappedBy = "tour")
-    private Set<BookedTour> bookedTours;
+    private Set<ClientTour> bookedTours;
 }

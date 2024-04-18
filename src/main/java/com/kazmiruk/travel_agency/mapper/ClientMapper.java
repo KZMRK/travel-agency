@@ -1,19 +1,20 @@
 package com.kazmiruk.travel_agency.mapper;
 
-import com.kazmiruk.travel_agency.dto.ClientRequest;
-import com.kazmiruk.travel_agency.dto.ClientResponse;
-import com.kazmiruk.travel_agency.model.Client;
+import com.kazmiruk.travel_agency.model.dto.ClientDto;
+import com.kazmiruk.travel_agency.model.entity.Client;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface ClientMapper {
 
-    ClientResponse toResponse(Client client);
-
-    Iterable<ClientResponse> toResponse(Iterable<Client> clients);
+    ClientDto toDto(Client client);
 
     @Mapping(target = "bookedTours", ignore = true)
+    Client toEntity(ClientDto clientDto);
+
     @Mapping(target = "id", ignore = true)
-    Client toEntity(ClientRequest clientRequest);
+    @Mapping(target = "bookedTours", ignore = true)
+    void updateEntity(@MappingTarget Client client, ClientDto clientDto);
 }

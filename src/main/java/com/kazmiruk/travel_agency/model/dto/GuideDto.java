@@ -1,12 +1,14 @@
-package com.kazmiruk.travel_agency.dto;
+package com.kazmiruk.travel_agency.model.dto;
 
-import com.kazmiruk.travel_agency.uti.validation.RequestBodyNestedEntity;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@RequestBodyNestedEntity(idFieldName = "id")
+@Getter
+@Setter
+@EqualsAndHashCode
 public class GuideDto {
 
     private Long id;

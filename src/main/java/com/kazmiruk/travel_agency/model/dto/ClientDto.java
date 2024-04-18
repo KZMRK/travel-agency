@@ -1,11 +1,17 @@
-package com.kazmiruk.travel_agency.dto;
+package com.kazmiruk.travel_agency.model.dto;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-public class ClientRequest {
+@Getter
+@Setter
+@EqualsAndHashCode
+public class ClientDto {
+
+    private Long id;
 
     @Size(min = 2, max = 50, message = "{firstname.size}")
     @Pattern(

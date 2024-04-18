@@ -1,44 +1,28 @@
-package com.kazmiruk.travel_agency.model;
+package com.kazmiruk.travel_agency.model.dto;
 
-import com.kazmiruk.travel_agency.enums.Role;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.kazmiruk.travel_agency.type.RoleType;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
-@Data
-@Entity
-@Table(name = "_user")
-@NoArgsConstructor
-public class User implements UserDetails {
+@Getter
+@Setter
+public class UserDto implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Email
     private String email;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    private RoleType role;
 
     private String password;
 
-    public User(String email, Role role, String password) {
-        this.email = email;
-        this.role = role;
-        this.password = password;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

@@ -1,21 +1,24 @@
-package com.kazmiruk.travel_agency.dto;
+package com.kazmiruk.travel_agency.model.dto;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Data
-public class TourRequest {
+@Getter
+@Setter
+@EqualsAndHashCode
+public class TourDto {
 
-    @Valid
+    private Long id;
+
     @NotNull
     private CountryDto departure;
 
-    @Valid
     @NotNull
     private CountryDto destination;
 
@@ -28,7 +31,6 @@ public class TourRequest {
     @Min(value = 1, message = "{price.min}")
     private Double initialPrice;
 
-    @Valid
     @NotNull
     private GuideDto guide;
 
