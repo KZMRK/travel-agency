@@ -1,9 +1,8 @@
-package com.kazmiruk.travel_agency.web;
+package com.kazmiruk.travel_agency.controller;
 
-import com.kazmiruk.travel_agency.dto.ClientRequest;
-import com.kazmiruk.travel_agency.dto.ClientResponse;
-import com.kazmiruk.travel_agency.dto.ErrorDto;
-import com.kazmiruk.travel_agency.dto.TourResponse;
+import com.kazmiruk.travel_agency.model.dto.ClientDto;
+import com.kazmiruk.travel_agency.model.dto.ErrorDto;
+import com.kazmiruk.travel_agency.model.dto.TourDto;
 import com.kazmiruk.travel_agency.service.ClientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("/api/clients")
 @RequiredArgsConstructor
@@ -34,23 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClientController {
 
     private final ClientService clientService;
-
-    @Operation(
-            summary = "Get all clients",
-            responses = @ApiResponse(
-                    description = "OK",
-                    responseCode = "200",
-                    content = @Content(
-                            mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = ClientResponse.class))
-                    )
-            )
-    )
-    @GetMapping
-    public ResponseEntity<Iterable<ClientResponse>> getClients() {
-        Iterable<ClientResponse> clientResponses = clientService.getClients();
-        return ResponseEntity.ok(clientResponses);
-    }
 
     @Operation(
             summary = "Add client",
@@ -71,9 +55,26 @@ public class ClientController {
             }
     )
     @PostMapping
-    public ResponseEntity<ClientResponse> addClient(@RequestBody @Valid ClientRequest clientRequest) {
-        ClientResponse clientResponse = clientService.addClient(clientRequest);
+    public ResponseEntity<ClientDto> createClient(@RequestBody @Valid ClientDto clientRequest) {
+        ClientDto clientResponse = clientService.createClient(clientRequest);
         return new ResponseEntity<>(clientResponse, HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "Get all clients",
+            responses = @ApiResponse(
+                    description = "OK",
+                    responseCode = "200",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ClientDto.class))
+                    )
+            )
+    )
+    @GetMapping
+    public ResponseEntity<Set<ClientDto>> getAllClients() {
+        Set<ClientDto> clientResponses = clientService.getAllClients();
+        return ResponseEntity.ok(clientResponses);
     }
 
     @Operation(
@@ -104,12 +105,12 @@ public class ClientController {
             }
     )
     @PutMapping("/{id}")
-    public ResponseEntity<ClientResponse> updateClient(
+    public ResponseEntity<ClientDto> updateClient(
             @Parameter(name = "id", description = "Client id whose data you want to change" , example = "34")
             @PathVariable("id") Long clientId,
-            @RequestBody @Valid ClientRequest clientRequest
+            @RequestBody @Valid ClientDto clientRequest
     ) {
-        ClientResponse clientResponse = clientService.updateClient(clientId, clientRequest);
+        ClientDto clientResponse = clientService.updateClient(clientId, clientRequest);
         return ResponseEntity.ok(clientResponse);
     }
 
@@ -147,7 +148,7 @@ public class ClientController {
                             responseCode = "200",
                             content = @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = TourResponse.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = TourDto.class))
                             )
                     ),
                     @ApiResponse(
@@ -161,11 +162,11 @@ public class ClientController {
             }
     )
     @GetMapping("/{id}/tours")
-    public ResponseEntity<Iterable<TourResponse>> getClientTours(
+    public ResponseEntity<Set<TourDto>> getClientTours(
             @Parameter(name = "id", description = "id of the client whose tours you want to receive")
             @PathVariable("id") Long clientId
     ) {
-        Iterable<TourResponse> tourResponses = clientService.getClientTours(clientId);
+        Set<TourDto> tourResponses = clientService.getClientTours(clientId);
         return ResponseEntity.ok(tourResponses);
     }
 
@@ -176,15 +177,15 @@ public class ClientController {
                     responseCode = "200",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = ClientResponse.class))
+                            array = @ArraySchema(schema = @Schema(implementation = ClientDto.class))
                     )
             )
     )
     @GetMapping("/without-tours")
-    public ResponseEntity<Iterable<ClientResponse>> getClientsWithoutToursInYear(
+    public ResponseEntity<Set<ClientDto>> getClientsWithoutToursInYear(
             @RequestParam("year") Integer year
     ) {
-        Iterable<ClientResponse> clientResponses = clientService.getClientsWithoutToursInYear(year);
+        Set<ClientDto> clientResponses = clientService.getClientsWithoutToursInYear(year);
         return ResponseEntity.ok(clientResponses);
     }
 
@@ -207,8 +208,8 @@ public class ClientController {
              }
     )
     @GetMapping("/with-highest-discount")
-    public ResponseEntity<ClientResponse> getClientWithHighestDiscount() {
-        ClientResponse clientResponse = clientService.getClientWithHighestDiscount();
+    public ResponseEntity<ClientDto> getClientWithHighestDiscount() {
+        ClientDto clientResponse = clientService.getClientWithHighestDiscount();
         return ResponseEntity.ok(clientResponse);
     }
 
@@ -230,8 +231,8 @@ public class ClientController {
             }
     )
     @GetMapping("/highest-revenue")
-    public ResponseEntity<ClientResponse> getClientGeneratedHighestRevenue() {
-        ClientResponse clientResponse = clientService.getClientGeneratedHighestRevenue();
+    public ResponseEntity<ClientDto> getClientGeneratedHighestRevenue() {
+        ClientDto clientResponse = clientService.getClientGeneratedHighestRevenue();
         return ResponseEntity.ok(clientResponse);
     }
 }

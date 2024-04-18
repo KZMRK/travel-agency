@@ -1,11 +1,10 @@
-package com.kazmiruk.travel_agency.web;
+package com.kazmiruk.travel_agency.controller;
 
-import com.kazmiruk.travel_agency.dto.BookTourRequest;
-import com.kazmiruk.travel_agency.dto.ErrorDto;
-import com.kazmiruk.travel_agency.dto.TourAggregateResponse;
-import com.kazmiruk.travel_agency.dto.TourRequest;
-import com.kazmiruk.travel_agency.dto.TourResponse;
-import com.kazmiruk.travel_agency.dto.TourSellingPriceResponse;
+import com.kazmiruk.travel_agency.model.dto.BookTourDto;
+import com.kazmiruk.travel_agency.model.dto.ErrorDto;
+import com.kazmiruk.travel_agency.model.dto.TourAggregateDto;
+import com.kazmiruk.travel_agency.model.dto.TourDto;
+import com.kazmiruk.travel_agency.model.dto.ClientTourDto;
 import com.kazmiruk.travel_agency.service.TourService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("/api/tours")
 @RequiredArgsConstructor
@@ -27,23 +28,6 @@ import org.springframework.web.bind.annotation.*;
 public class TourController {
 
     private final TourService tourService;
-
-    @Operation(
-            summary = "Get all tours",
-            responses = @ApiResponse(
-                    description = "OK",
-                    responseCode = "200",
-                    content = @Content(
-                            mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = TourResponse.class))
-                    )
-            )
-    )
-    @GetMapping
-    public ResponseEntity<Iterable<TourResponse>> getTours() {
-        Iterable<TourResponse> tourResponses = tourService.getTours();
-        return ResponseEntity.ok(tourResponses);
-    }
 
     @Operation(
             summary = "Add tour",
@@ -63,11 +47,28 @@ public class TourController {
             }
     )
     @PostMapping
-    public ResponseEntity<TourResponse> addTour(
-            @RequestBody @Valid TourRequest tourRequest
+    public ResponseEntity<TourDto> createTour(
+            @RequestBody @Valid TourDto tourRequest
     ) {
-        TourResponse tourResponse = tourService.addTour(tourRequest);
+        TourDto tourResponse = tourService.createTour(tourRequest);
         return ResponseEntity.ok(tourResponse);
+    }
+
+    @Operation(
+            summary = "Get all tours",
+            responses = @ApiResponse(
+                    description = "OK",
+                    responseCode = "200",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = TourDto.class))
+                    )
+            )
+    )
+    @GetMapping
+    public ResponseEntity<Set<TourDto>> getAllTours() {
+        Set<TourDto> tourResponses = tourService.getAllTours();
+        return ResponseEntity.ok(tourResponses);
     }
 
     @Operation(
@@ -97,12 +98,12 @@ public class TourController {
             }
     )
     @PutMapping("/{id}")
-    public ResponseEntity<TourResponse> updateTour(
+    public ResponseEntity<TourDto> updateTour(
             @Parameter(name = "id", description = "Tour id whose data you want to change")
             @PathVariable("id") Long tourId,
-            @RequestBody @Valid TourRequest tourRequest
+            @RequestBody @Valid TourDto tourRequest
     ) {
-        TourResponse tourResponse = tourService.updateTour(tourId, tourRequest);
+        TourDto tourResponse = tourService.updateTour(tourId, tourRequest);
         return ResponseEntity.ok(tourResponse);
     }
 
@@ -169,64 +170,15 @@ public class TourController {
             }
     )
     @PostMapping("/{tourId}/clients/{clientId}")
-    public ResponseEntity<TourSellingPriceResponse> bookTour(
+    public ResponseEntity<ClientTourDto> bookTour(
             @Parameter(name = "tourId", description = "id of tour that the client wants to book")
             @PathVariable Long tourId,
             @Parameter(name = "clientId", description = "id of client who wants to book a tour")
             @PathVariable Long clientId,
-            @RequestBody @Valid BookTourRequest bookTourRequest
+            @RequestBody @Valid BookTourDto bookTourRequest
     ) {
-        TourSellingPriceResponse tourResponse = tourService.bookTour(tourId, clientId, bookTourRequest);
-        return ResponseEntity.ok(tourResponse);
-    }
-
-    @Operation(
-            summary = "The average price and total amount for which a tour was sold",
-            responses = {
-                    @ApiResponse(
-                            description = "OK",
-                            responseCode = "200"
-                    ),
-                    @ApiResponse(
-                            description = "Tour not found",
-                            responseCode = "404",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorDto.class)
-                            )
-                    )
-            }
-    )
-    @GetMapping("/{id}/aggregate")
-    public ResponseEntity<TourAggregateResponse> getTourSumAndAvgSellingPrice(
-            @Parameter(name = "id", description = "id of the tour")
-            @PathVariable("id") Long tourId
-    ) {
-        TourAggregateResponse tourAggregateResponse = tourService.getTourSumAndAvgSellingPrice(tourId);
-        return ResponseEntity.ok(tourAggregateResponse);
-    }
-
-    @Operation(
-            summary = "The most popular trip with the lowest selling price",
-            responses = {
-                    @ApiResponse(
-                            description = "OK",
-                            responseCode = "200"
-                    ),
-                    @ApiResponse(
-                            description = "Tour not found",
-                            responseCode = "404",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorDto.class)
-                            )
-                    )
-            }
-    )
-    @GetMapping("/most-popular-with-lowest-selling-price")
-    public ResponseEntity<TourResponse> getMostPopularTourWithTheLowestSellingPrice() {
-        TourResponse tourResponse = tourService.getMostPopularTourWithTheLowestSellingPrice();
-        return ResponseEntity.ok(tourResponse);
+        ClientTourDto clientTourResponse = tourService.bookTour(tourId, clientId, bookTourRequest);
+        return ResponseEntity.ok(clientTourResponse);
     }
 
     @Operation(
@@ -255,6 +207,55 @@ public class TourController {
             @PathVariable("clientId") Long clientId
     ) {
         tourService.cancelBooking(tourId, clientId);
+    }
+
+    @Operation(
+            summary = "The average price and total amount for which a tour was sold",
+            responses = {
+                    @ApiResponse(
+                            description = "OK",
+                            responseCode = "200"
+                    ),
+                    @ApiResponse(
+                            description = "Tour not found",
+                            responseCode = "404",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorDto.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping("/{id}/aggregate")
+    public ResponseEntity<TourAggregateDto> getTourSumAndAvgSellingPrice(
+            @Parameter(name = "id", description = "id of the tour")
+            @PathVariable("id") Long tourId
+    ) {
+        TourAggregateDto tourAggregateDto = tourService.getTourSumAndAvgSellingPrice(tourId);
+        return ResponseEntity.ok(tourAggregateDto);
+    }
+
+    @Operation(
+            summary = "The most popular trip with the lowest selling price",
+            responses = {
+                    @ApiResponse(
+                            description = "OK",
+                            responseCode = "200"
+                    ),
+                    @ApiResponse(
+                            description = "Tour not found",
+                            responseCode = "404",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorDto.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping("/most-popular-with-lowest-selling-price")
+    public ResponseEntity<TourDto> getMostPopularTourWithTheLowestSellingPrice() {
+        TourDto tourResponse = tourService.getMostPopularTourWithTheLowestSellingPrice();
+        return ResponseEntity.ok(tourResponse);
     }
 
 }

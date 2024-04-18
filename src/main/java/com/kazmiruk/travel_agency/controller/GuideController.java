@@ -1,8 +1,7 @@
-package com.kazmiruk.travel_agency.web;
+package com.kazmiruk.travel_agency.controller;
 
-import com.kazmiruk.travel_agency.dto.ErrorDto;
-import com.kazmiruk.travel_agency.dto.GuideRequest;
-import com.kazmiruk.travel_agency.dto.GuideResponse;
+import com.kazmiruk.travel_agency.model.dto.ErrorDto;
+import com.kazmiruk.travel_agency.model.dto.GuideDto;
 import com.kazmiruk.travel_agency.service.GuideService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("/api/guides")
 @RequiredArgsConstructor
@@ -24,23 +25,6 @@ import org.springframework.web.bind.annotation.*;
 public class GuideController {
 
     private final GuideService guideService;
-
-    @Operation(
-            summary = "Get all guides",
-            responses = @ApiResponse(
-                    description = "OK",
-                    responseCode = "200",
-                    content = @Content(
-                            mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = GuideResponse.class))
-                    )
-            )
-    )
-    @GetMapping
-    public ResponseEntity<Iterable<GuideResponse>> getGuides() {
-        Iterable<GuideResponse> guideResponses = guideService.getGuides();
-        return ResponseEntity.ok(guideResponses);
-    }
 
     @Operation(
             summary = "Add guide",
@@ -60,9 +44,26 @@ public class GuideController {
             }
     )
     @PostMapping
-    public ResponseEntity<GuideResponse> addGuide(@RequestBody @Valid GuideRequest guideRequest) {
-        GuideResponse guideResponse = guideService.addGuide(guideRequest);
+    public ResponseEntity<GuideDto> createGuide(@RequestBody @Valid GuideDto guideRequest) {
+        GuideDto guideResponse = guideService.createGuide(guideRequest);
         return new ResponseEntity<>(guideResponse, HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "Get all guides",
+            responses = @ApiResponse(
+                    description = "OK",
+                    responseCode = "200",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = GuideDto.class))
+                    )
+            )
+    )
+    @GetMapping
+    public ResponseEntity<Set<GuideDto>> getAllGuides() {
+        Set<GuideDto> guideResponses = guideService.getAllGuides();
+        return ResponseEntity.ok(guideResponses);
     }
 
     @Operation(
@@ -92,12 +93,12 @@ public class GuideController {
             }
     )
     @PutMapping("/{id}")
-    public ResponseEntity<GuideResponse> updateGuide(
+    public ResponseEntity<GuideDto> updateGuide(
             @Parameter(name = "id", description = "Guide id whose data you want to change")
             @PathVariable("id") Long guideId,
-            @RequestBody @Valid GuideRequest guideRequest
+            @RequestBody @Valid GuideDto guideRequest
     ) {
-        GuideResponse guideResponse = guideService.editGuide(guideId, guideRequest);
+        GuideDto guideResponse = guideService.updateGuide(guideId, guideRequest);
         return ResponseEntity.ok(guideResponse);
     }
 
@@ -153,8 +154,8 @@ public class GuideController {
             }
     )
     @GetMapping("/highest-revenue")
-    public ResponseEntity<GuideResponse> getGuideGeneratedHighestRevenue() {
-        GuideResponse guideResponse = guideService.getGuideGeneratedHighestRevenue();
+    public ResponseEntity<GuideDto> getGuideGeneratedHighestRevenue() {
+        GuideDto guideResponse = guideService.getGuideGeneratedHighestRevenue();
         return ResponseEntity.ok(guideResponse);
     }
 

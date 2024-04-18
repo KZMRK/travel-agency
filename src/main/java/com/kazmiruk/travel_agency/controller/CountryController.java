@@ -1,8 +1,7 @@
-package com.kazmiruk.travel_agency.web;
+package com.kazmiruk.travel_agency.controller;
 
-import com.kazmiruk.travel_agency.dto.CountryRequest;
-import com.kazmiruk.travel_agency.dto.CountryResponse;
-import com.kazmiruk.travel_agency.dto.ErrorDto;
+import com.kazmiruk.travel_agency.model.dto.CountryDto;
+import com.kazmiruk.travel_agency.model.dto.ErrorDto;
 import com.kazmiruk.travel_agency.service.CountryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("/api/countries")
 @RequiredArgsConstructor
@@ -33,23 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CountryController {
 
     private final CountryService countryService;
-
-    @Operation(
-            summary = "Get all the countries",
-            responses = @ApiResponse(
-                    description = "OK",
-                    responseCode = "200",
-                    content = @Content(
-                            mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = CountryResponse.class))
-                    )
-            )
-    )
-    @GetMapping
-    public ResponseEntity<Iterable<CountryResponse>> getCountries() {
-        Iterable<CountryResponse> countryResponses = countryService.getCountries();
-        return ResponseEntity.ok(countryResponses);
-    }
 
     @Operation(
             summary = "Add country",
@@ -60,7 +44,7 @@ public class CountryController {
                     ),
                     @ApiResponse(
                             description = "Validation error in request body data or country with passed" +
-                            " name already exist",
+                                    " name already exist",
                             responseCode = "400",
                             content = @Content(
                                     mediaType = "application/json",
@@ -70,9 +54,26 @@ public class CountryController {
             }
     )
     @PostMapping
-    public ResponseEntity<CountryResponse> addCountry(@RequestBody @Valid CountryRequest countryRequest) {
-        CountryResponse countryResponse = countryService.addCountry(countryRequest);
+    public ResponseEntity<CountryDto> createCountry(@RequestBody @Valid CountryDto countryRequest) {
+        CountryDto countryResponse = countryService.createCountry(countryRequest);
         return new ResponseEntity<>(countryResponse, HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "Get all the countries",
+            responses = @ApiResponse(
+                    description = "OK",
+                    responseCode = "200",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = CountryDto.class))
+                    )
+            )
+    )
+    @GetMapping
+    public ResponseEntity<Set<CountryDto>> getAllCountries() {
+        Set<CountryDto> countryResponses = countryService.getAllCountries();
+        return ResponseEntity.ok(countryResponses);
     }
 
     @Operation(
@@ -103,12 +104,12 @@ public class CountryController {
             }
     )
     @PutMapping("/{id}")
-    public ResponseEntity<CountryResponse> updateCountry(
+    public ResponseEntity<CountryDto> updateCountry(
             @Parameter(name = "id", description = "Country id whose name you want to change")
             @PathVariable("id") Integer countryId,
-            @RequestBody @Valid CountryRequest countryRequest
+            @RequestBody @Valid CountryDto countryRequest
     ) {
-        CountryResponse countryResponse = countryService.updateCountry(countryId, countryRequest);
+        CountryDto countryResponse = countryService.updateCountry(countryId, countryRequest);
         return ResponseEntity.ok(countryResponse);
     }
 
@@ -154,7 +155,7 @@ public class CountryController {
                             responseCode = "200"
                     ),
                     @ApiResponse(
-                            description = "Country not found",
+                            description = "There are no tours in given year",
                             responseCode = "404",
                             content = @Content(
                                     mediaType = "application/json",
@@ -164,10 +165,10 @@ public class CountryController {
             }
     )
     @GetMapping("/top")
-    public ResponseEntity<CountryResponse> getMostPopularCountry(
+    public ResponseEntity<CountryDto> getMostPopularDestinationInYear(
             @RequestParam Integer year
     ) {
-        CountryResponse countryResponse = countryService.getMostPopularDestination(year);
+        CountryDto countryResponse = countryService.getMostPopularDestinationInYear(year);
         return ResponseEntity.ok(countryResponse);
     }
 }
