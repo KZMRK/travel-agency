@@ -1,18 +1,23 @@
 package com.kazmiruk.travel_agency.service;
 
-import com.kazmiruk.travel_agency.dto.CountryRequest;
-import com.kazmiruk.travel_agency.dto.CountryResponse;
+import com.kazmiruk.travel_agency.model.dto.CountryDto;
 import com.kazmiruk.travel_agency.mapper.CountryMapper;
-import com.kazmiruk.travel_agency.model.Country;
+import com.kazmiruk.travel_agency.model.entity.Country;
 import com.kazmiruk.travel_agency.repository.CountryRepository;
-import com.kazmiruk.travel_agency.uti.error.CountryCantBeDeletedException;
-import com.kazmiruk.travel_agency.uti.error.CountryNotFoundException;
-import com.kazmiruk.travel_agency.uti.error.CountryWithNameAlreadyExistException;
+import com.kazmiruk.travel_agency.model.exception.AlreadyExistException;
+import com.kazmiruk.travel_agency.model.exception.BadRequestException;
+import com.kazmiruk.travel_agency.model.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.kazmiruk.travel_agency.type.ErrorMessageType.COUNTRY_NAME_ALREADY_EXIST;
+import static com.kazmiruk.travel_agency.type.ErrorMessageType.COUNTRY_NOT_FOUND;
+import static com.kazmiruk.travel_agency.type.ErrorMessageType.NO_TOURS_IN_YEAR;
 
 @Service
 @RequiredArgsConstructor
@@ -22,46 +27,60 @@ public class CountryService {
 
     private final CountryMapper countryMapper;
 
-    public Iterable<CountryResponse> getCountries() {
-        List<Country> countries = countryRepository.findAll();
-        return countryMapper.toResponse(countries);
-    }
-
-    public CountryResponse addCountry(CountryRequest countryRequest) {
+    @Transactional
+    public CountryDto createCountry(CountryDto countryRequest) {
+        checkIfCountryNameAlreadyExists(countryRequest.getName());
         Country country = countryMapper.toEntity(countryRequest);
-        try {
-            Country savedCountry = countryRepository.save(country);
-            return countryMapper.toResponse(savedCountry);
-        } catch (DataIntegrityViolationException e) {
-            throw new CountryWithNameAlreadyExistException("Country with name '" + countryRequest.getName() + "' already exist");
+        country = countryRepository.save(country);
+        return countryMapper.toDto(country);
+    }
+
+    private void checkIfCountryNameAlreadyExists(String countryName) {
+        if (countryRepository.existsByName(countryName)) {
+            throw new AlreadyExistException(
+                    COUNTRY_NAME_ALREADY_EXIST.getMessage().formatted(countryName)
+            );
         }
     }
 
-    public CountryResponse updateCountry(Integer countryId, CountryRequest countryRequest) {
-        Country updatedCountry = countryRepository.findById(countryId)
-                .map(country -> {
-                    country.setName(countryRequest.getName());
-                    return countryRepository.save(country);
-                }).orElseThrow(() -> new CountryNotFoundException("Country with id " + countryId + " not found"));
-        return countryMapper.toResponse(updatedCountry);
+    @Transactional(readOnly = true)
+    public Set<CountryDto> getAllCountries() {
+        List<Country> countries = countryRepository.findAll();
+        return countries.stream().map(countryMapper::toDto).collect(Collectors.toSet());
     }
 
+    @Transactional
+    public CountryDto updateCountry(Integer countryId, CountryDto countryRequest) {
+        Country country = getCountryById(countryId);
+        if (!country.getName().equals(countryRequest.getName())) {
+            checkIfCountryNameAlreadyExists(countryRequest.getName());
+        }
+        countryMapper.updateEntity(country, countryRequest);
+        return countryMapper.toDto(country);
+    }
+
+    private Country getCountryById(Integer countryId) {
+        return countryRepository.findById(countryId).orElseThrow(() ->
+                new NotFoundException(
+                        COUNTRY_NOT_FOUND.getMessage().formatted(countryId)
+                )
+        );
+    }
+
+    @Transactional
     public void deleteCountry(Integer countryId) {
-        Country country = countryRepository.findById(countryId).orElseThrow(() ->
-                new CountryNotFoundException("Country with id " + countryId + " not found")
-        );
-        try {
-            countryRepository.delete(country);
-        } catch (DataIntegrityViolationException e) {
-            throw new CountryCantBeDeletedException("There are tours that use the country with id " + countryId);
-        }
+        Country country = getCountryById(countryId);
+        countryRepository.delete(country);
     }
 
-    public CountryResponse getMostPopularDestination(int year) {
+    @Transactional(readOnly = true)
+    public CountryDto getMostPopularDestination(int year) {
         Country country = countryRepository.findMostPopularDestinationInYear(year).orElseThrow(() ->
-                new CountryNotFoundException("Country not found")
+                new BadRequestException(
+                        NO_TOURS_IN_YEAR.getMessage().formatted(year)
+                )
         );
-        return countryMapper.toResponse(country);
+        return countryMapper.toDto(country);
     }
 
 }

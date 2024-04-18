@@ -1,18 +1,25 @@
 package com.kazmiruk.travel_agency.service;
 
-import com.kazmiruk.travel_agency.dto.ClientRequest;
-import com.kazmiruk.travel_agency.dto.ClientResponse;
-import com.kazmiruk.travel_agency.dto.TourResponse;
 import com.kazmiruk.travel_agency.mapper.ClientMapper;
 import com.kazmiruk.travel_agency.mapper.TourMapper;
-import com.kazmiruk.travel_agency.model.Client;
-import com.kazmiruk.travel_agency.model.BookedTour;
+import com.kazmiruk.travel_agency.model.dto.ClientDto;
+import com.kazmiruk.travel_agency.model.dto.TourDto;
+import com.kazmiruk.travel_agency.model.entity.Client;
+import com.kazmiruk.travel_agency.model.entity.Tour;
+import com.kazmiruk.travel_agency.model.exception.AlreadyExistException;
+import com.kazmiruk.travel_agency.model.exception.NotFoundException;
 import com.kazmiruk.travel_agency.repository.ClientRepository;
-import com.kazmiruk.travel_agency.uti.error.ClientNotFoundException;
-import com.kazmiruk.travel_agency.uti.error.PassportNumberAlreadyExistException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.kazmiruk.travel_agency.type.ErrorMessageType.CLIENT_NOT_FOUND;
+import static com.kazmiruk.travel_agency.type.ErrorMessageType.CLIENT_WITH_PASSPORT_ALREADY_EXIST;
 
 @Service
 @RequiredArgsConstructor
@@ -24,71 +31,80 @@ public class ClientService {
 
     private final TourMapper tourMapper;
 
-    public Iterable<ClientResponse> getClients() {
-        Iterable<Client> clients = clientRepository.findAll();
-        return clientMapper.toResponse(clients);
+    @Transactional
+    public ClientDto createClient(ClientDto clientRequest) {
+        checkIfClientAlreadyExistsByPassportNumber(clientRequest.getPassportNumber());
+        Client client = clientMapper.toEntity(clientRequest);
+        client = clientRepository.save(client);
+        return clientMapper.toDto(client);
     }
 
-    public ClientResponse addClient(ClientRequest clientRequest) {
-        Client client = clientMapper.toEntity(clientRequest);
-        try {
-            Client savedClient = clientRepository.save(client);
-            return clientMapper.toResponse(savedClient);
-        } catch (DataIntegrityViolationException e) {
-            throw new PassportNumberAlreadyExistException(
-                    "Client with passport number '" + clientRequest.getPassportNumber() + "' already exist"
+    private void checkIfClientAlreadyExistsByPassportNumber(String passportNumber) {
+        if (clientRepository.existsByPassportNumber(passportNumber)) {
+            throw new AlreadyExistException(
+                    CLIENT_WITH_PASSPORT_ALREADY_EXIST.getMessage().formatted(
+                            passportNumber
+                    )
             );
         }
     }
 
-    public void deleteClient(Long clientId) {
-        Client client = clientRepository.findById(clientId).orElseThrow(() ->
-                new ClientNotFoundException("Client with id " + clientId + " not found")
+    @Transactional(readOnly = true)
+    public Set<ClientDto> getAllClients() {
+        List<Client> clients = clientRepository.findAll();
+        Set<ClientDto> clientResponses = clients.stream()
+                .map(clientMapper::toDto)
+                .collect(Collectors.toSet());;
+        return clientResponses;
+    }
+
+    @Transactional
+    public ClientDto updateClient(Long clientId, ClientDto clientRequest) {
+        Client client = getClientById(clientId);
+        if (!client.getPassportNumber().equals(clientRequest.getPassportNumber())) {
+            checkIfClientAlreadyExistsByPassportNumber(clientRequest.getPassportNumber());
+        }
+        clientMapper.updateEntity(client, clientRequest);
+        return clientMapper.toDto(client);
+    }
+
+    private Client getClientById(Long clientId) {
+        return clientRepository.findById(clientId).orElseThrow(() ->
+                new NotFoundException(
+                            CLIENT_NOT_FOUND.getMessage().formatted(
+                                    clientId
+                            )
+                )
         );
+    }
+
+    @Transactional
+    public void deleteClient(Long clientId) {
+        Client client = getClientById(clientId);
         clientRepository.delete(client);
     }
 
-    public ClientResponse updateClient(Long clientId, ClientRequest clientRequest) {
-        Client updatedClient = clientRepository.findById(clientId)
-                .map(client -> {
-                    client.setFirstName(clientRequest.getFirstName());
-                    client.setLastName(clientRequest.getLastName());
-                    client.setPassportNumber(clientRequest.getPassportNumber());
-                    try {
-                        return clientRepository.save(client);
-                    } catch (DataIntegrityViolationException e) {
-                        throw new PassportNumberAlreadyExistException(
-                                "Client with passport number '" + clientRequest.getPassportNumber() + "' already exist"
-                        );
-                    }
-                }).orElseThrow(() -> new ClientNotFoundException("Client with id " + clientId + " not found"));
-
-        return clientMapper.toResponse(updatedClient);
+    @Transactional(readOnly = true)
+    public Set<TourDto> getClientTours(Long clientId) {
+        Set<Tour> clientTours = clientRepository.findClientToursByClientId(clientId);
+        return clientTours.stream().map(tourMapper::toDto).collect(Collectors.toSet());
     }
 
-    public Iterable<TourResponse> getClientTours(Long clientId) {
-        Client client = clientRepository.findById(clientId).orElseThrow(() ->
-                new ClientNotFoundException("Client with id " + clientId + " not found")
-        );
-        return tourMapper.toResponse(client.getBookedTours().stream().map(BookedTour::getTour).toList());
+    @Transactional(readOnly = true)
+    public Set<ClientDto> getClientsWithoutToursInYear(int year) {
+        Set<Client> clients = clientRepository.findClientsWithoutTourInYear(year);
+        return clients.stream().map(clientMapper::toDto).collect(Collectors.toSet());
     }
 
-    public Iterable<ClientResponse> getClientsWithoutToursInYear(int year) {
-        Iterable<Client> clients = clientRepository.findClientsWithoutTourInYear(year);
-        return clientMapper.toResponse(clients);
+    @Transactional(readOnly = true)
+    public ClientDto getClientWithHighestDiscount() {
+        Optional<Client> clientOpt = clientRepository.findClientWithHighestDiscount();
+        return clientMapper.toDto(clientOpt.orElse(null));
     }
 
-    public ClientResponse getClientWithHighestDiscount() {
-        Client client = clientRepository.findClientWithHighestDiscount().orElseThrow(() ->
-                new ClientNotFoundException("Client not found")
-        );
-        return clientMapper.toResponse(client);
-    }
-
-    public ClientResponse getClientGeneratedHighestRevenue() {
-        Client client = clientRepository.findClientGeneratedHighestRevenue().orElseThrow(() ->
-                new ClientNotFoundException("Client not found")
-        );
-        return clientMapper.toResponse(client);
+    @Transactional(readOnly = true)
+    public ClientDto getClientGeneratedHighestRevenue() {
+        Optional<Client> client = clientRepository.findClientGeneratedHighestRevenue();
+        return clientMapper.toDto(client.orElse(null));
     }
 }

@@ -1,28 +1,41 @@
 package com.kazmiruk.travel_agency.service;
 
-import com.kazmiruk.travel_agency.dto.*;
-import com.kazmiruk.travel_agency.mapper.CountryMapper;
-import com.kazmiruk.travel_agency.mapper.GuideMapper;
 import com.kazmiruk.travel_agency.mapper.TourMapper;
-import com.kazmiruk.travel_agency.mapper.TourSellingPriceMapper;
-import com.kazmiruk.travel_agency.model.*;
-import com.kazmiruk.travel_agency.model.key.BookedTourKey;
-import com.kazmiruk.travel_agency.repository.*;
-import com.kazmiruk.travel_agency.uti.error.BookedTourNotFoundException;
-import com.kazmiruk.travel_agency.uti.error.ClientNotFoundException;
-import com.kazmiruk.travel_agency.uti.error.CountryNotFoundException;
-import com.kazmiruk.travel_agency.uti.error.CountryWithNameAlreadyExistException;
-import com.kazmiruk.travel_agency.uti.error.GuideNotFoundException;
-import com.kazmiruk.travel_agency.uti.error.SameTimeFrameException;
-import com.kazmiruk.travel_agency.uti.error.TooMuchDiscountException;
-import com.kazmiruk.travel_agency.uti.error.TourCantBeDeletedException;
-import com.kazmiruk.travel_agency.uti.error.TourNotFoundException;
-import com.kazmiruk.travel_agency.uti.holder.TourBookingProps;
+import com.kazmiruk.travel_agency.mapper.ClientTourMapper;
+import com.kazmiruk.travel_agency.model.dto.BookTourDto;
+import com.kazmiruk.travel_agency.model.dto.ClientTourDto;
+import com.kazmiruk.travel_agency.model.dto.TourAggregateDto;
+import com.kazmiruk.travel_agency.model.dto.TourDto;
+import com.kazmiruk.travel_agency.model.entity.Client;
+import com.kazmiruk.travel_agency.model.entity.ClientTour;
+import com.kazmiruk.travel_agency.model.entity.Country;
+import com.kazmiruk.travel_agency.model.entity.Guide;
+import com.kazmiruk.travel_agency.model.entity.Tour;
+import com.kazmiruk.travel_agency.model.exception.BadRequestException;
+import com.kazmiruk.travel_agency.model.exception.NotFoundException;
+import com.kazmiruk.travel_agency.model.properties.TourBookingProperties;
+import com.kazmiruk.travel_agency.repository.ClientRepository;
+import com.kazmiruk.travel_agency.repository.ClientTourRepository;
+import com.kazmiruk.travel_agency.repository.CountryRepository;
+import com.kazmiruk.travel_agency.repository.GuideRepository;
+import com.kazmiruk.travel_agency.repository.TourRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.kazmiruk.travel_agency.type.ErrorMessageType.BOOKING_NOT_FOUND;
+import static com.kazmiruk.travel_agency.type.ErrorMessageType.CLIENT_NOT_FOUND;
+import static com.kazmiruk.travel_agency.type.ErrorMessageType.COUNTRY_NOT_FOUND;
+import static com.kazmiruk.travel_agency.type.ErrorMessageType.GUIDE_NOT_FOUND;
+import static com.kazmiruk.travel_agency.type.ErrorMessageType.MAX_DISCOUNT_EXCEEDED;
+import static com.kazmiruk.travel_agency.type.ErrorMessageType.TOUR_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -38,149 +51,155 @@ public class TourService {
 
     private final ClientRepository clientRepository;
 
-    private final TourBookingProps tourBookingProps;
+    private final TourBookingProperties tourBookingProperties;
 
-    private final BookedTourRepository bookedTourRepository;
+    private final ClientTourRepository clientTourRepository;
 
-    private final TourSellingPriceMapper tourSellingPriceMapper;
+    private final ClientTourMapper clientTourMapper;
 
-    private final CountryMapper countryMapper;
+    @Transactional
+    public TourDto createTour(TourDto tourDto) {
+        Tour tour = tourMapper.toEntity(tourDto);
 
-    private final GuideMapper guideMapper;
+        tour.setDestination(getCountryById(tour.getDestination().getId()));
+        tour.setDeparture(getCountryById(tour.getDeparture().getId()));
+        tour.setGuide(getGuideById(tour.getGuide().getId()));
 
-    public Iterable<TourResponse> getTours() {
-        Iterable<Tour> tours = tourRepository.findAll();
-        return tourMapper.toResponse(tours);
+        tour = tourRepository.save(tour);
+        return tourMapper.toDto(tour);
     }
 
-    public TourResponse addTour(TourRequest tourRequest) {
-        Tour tour = tourMapper.toEntity(tourRequest);
-        tour.setDeparture(getCountryIfExistOrSaveAndGet(tour.getDeparture()));
-        tour.setDestination(getCountryIfExistOrSaveAndGet(tour.getDestination()));
-        tour.setGuide(getGuideIfExistOrSaveAndGet(tour.getGuide()));
-
-        return tourMapper.toResponse(tourRepository.save(tour));
+    private Country getCountryById(Integer countryId) {
+        return countryRepository.findById(countryId).orElseThrow(() ->
+                new NotFoundException(
+                        COUNTRY_NOT_FOUND.getMessage().formatted(countryId)
+                )
+        );
     }
 
-    private Country getCountryIfExistOrSaveAndGet(Country country) {
-        if (Objects.isNull(country.getId())) {
-            try {
-                return countryRepository.save(country);
-            } catch (DataIntegrityViolationException e) {
-                throw new CountryWithNameAlreadyExistException("Country with name '" + country.getName() + "' already exist");
-            }
-        } else {
-            return countryRepository.findById(country.getId()).orElseThrow(() ->
-                    new CountryNotFoundException("Country with id " + country.getId() + " not found")
-            );
-        }
+    private Guide getGuideById(Long guideId) {
+        return guideRepository.findById(guideId).orElseThrow(() ->
+                new NotFoundException(
+                        GUIDE_NOT_FOUND.getMessage().formatted(guideId)
+                )
+        );
     }
 
-    private Guide getGuideIfExistOrSaveAndGet(Guide guide) {
-        if (Objects.isNull(guide.getId())) {
-            return guideRepository.save(guide);
-        } else {
-            return guideRepository.findById(guide.getId()).orElseThrow(() ->
-                    new GuideNotFoundException("Guide with id " + guide.getId() + " not found")
-            );
-        }
+    @Transactional
+    public Set<TourDto> getAllTours() {
+        List<Tour> tours = tourRepository.findAll();
+        return tours.stream().map(tourMapper::toDto).collect(Collectors.toSet());
     }
 
+    @Transactional
+    public TourDto updateTour(Long tourId, TourDto tourRequest) {
+        Tour tour = getTourById(tourId);
+        tourMapper.updateEntity(tour, tourRequest);
 
-    public TourResponse updateTour(Long tourId, TourRequest tourRequest) {
-        Tour updatedTour = tourRepository.findById(tourId)
-                .map(tour -> {
-                    tour.setDestination(
-                            getCountryIfExistOrSaveAndGet(
-                                    countryMapper.toEntity(tourRequest.getDestination())
-                            )
-                    );
-                    tour.setDeparture(
-                            getCountryIfExistOrSaveAndGet(
-                                    countryMapper.toEntity(tourRequest.getDeparture())
-                            )
-                    );
-                    tour.setDepartureAt(tourRequest.getDepartureAt());
-                    tour.setReturnAt(tourRequest.getReturnAt());
-                    tour.setGuide(
-                            getGuideIfExistOrSaveAndGet(
-                                    guideMapper.toEntity(tourRequest.getGuide())
-                            )
-                    );
-                    tour.setInitialPrice(tourRequest.getInitialPrice());
-                    return tourRepository.save(tour);
-                })
-                .orElseThrow(() -> new GuideNotFoundException("Tour with id " + tourId + " not found"));
-        return tourMapper.toResponse(updatedTour);
+        tour.setDestination(getCountryById(tourRequest.getDestination().getId()));
+        tour.setDeparture(getCountryById(tourRequest.getDeparture().getId()));
+        tour.setGuide(getGuideById(tourRequest.getGuide().getId()));
+
+        return tourMapper.toDto(tour);
     }
 
+    private Tour getTourById(Long tourId) {
+        return tourRepository.findById(tourId).orElseThrow(() ->
+                new NotFoundException(
+                        TOUR_NOT_FOUND.getMessage().formatted(tourId)
+                )
+        );
+    }
+
+    @Transactional
     public void deleteTour(Long tourId) {
-        Tour tour = tourRepository.findById(tourId).orElseThrow(() -> new TourNotFoundException("Tour with id " + tourId + " not found"));
-        try {
-            tourRepository.delete(tour);
-        } catch (DataIntegrityViolationException e) {
-            throw new TourCantBeDeletedException("Tour with id " + tourId + " is booked by client/clients");
-        }
+        Tour tour = getTourById(tourId);
+        tourRepository.delete(tour);
     }
 
-    public TourSellingPriceResponse bookTour(Long tourId, Long clientId, BookTourRequest bookTourRequest) {
-        Tour tour = tourRepository.findById(tourId).orElseThrow(() ->
-                new TourNotFoundException("Tour with id " + tourId + " not found")
-        );
-        Client client = clientRepository.findById(clientId).orElseThrow(() ->
-                new ClientNotFoundException("Client with id " + clientId + " not found")
-        );
+    @Transactional
+    public ClientTourDto bookTour(Long tourId, Long clientId, BookTourDto bookTourRequest) {
+        Tour tour = getTourById(tourId);
+        Client client = getClientById(clientId);
 
-        double discount = ((tour.getInitialPrice() - bookTourRequest.getSellingPrice()) * 100) / tour.getInitialPrice();
-        if (discount > tourBookingProps.getDiscount()) {
-            throw new TooMuchDiscountException(
-                    String.format("Discount %.1f%% exceeds the maximum discount %d%% (min selling price - %.1f)",
-                            discount,
-                            tourBookingProps.getDiscount(),
-                            tour.getInitialPrice() * (1.0 - tourBookingProps.getDiscount() / 100.0)
+        BigDecimal clientDiscount = calculateClientDiscount(
+                tour.getInitialPrice(),
+                bookTourRequest.getSellingPrice()
+        );
+        BigDecimal minSellingPrice = calculateMinTourSellingPrice(tour);
+
+        if (clientDiscount.compareTo(BigDecimal.valueOf(tourBookingProperties.getDiscount())) > 0) {
+            throw new BadRequestException(
+                    MAX_DISCOUNT_EXCEEDED.getMessage().formatted(
+                            clientDiscount,
+                            tourBookingProperties.getDiscount(),
+                            minSellingPrice
                     )
             );
         }
 
-        boolean isClientHasTourAtSameTimeframe = client.getBookedTours().stream()
-                .map(BookedTour::getTour)
+        if (isClientHasTourAtSameTimeframe(client, tour)) {
+            throw new BadRequestException(BOOKING_NOT_FOUND.getMessage());
+        }
+
+        ClientTour bookedTour = new ClientTour(tour, client, bookTourRequest.getSellingPrice());
+        bookedTour = clientTourRepository.save(bookedTour);
+
+        return clientTourMapper.toDto(bookedTour);
+    }
+
+    private Client getClientById(Long clientId) {
+        return clientRepository.findById(clientId).orElseThrow(() ->
+                new NotFoundException(
+                        CLIENT_NOT_FOUND.getMessage().formatted(clientId)
+                )
+        );
+    }
+
+    private BigDecimal calculateClientDiscount(BigDecimal initialPrice, BigDecimal sellingPrice) {
+        BigDecimal discount = initialPrice.subtract(sellingPrice);
+        return discount.divide(initialPrice, 5, RoundingMode.FLOOR)
+                .multiply(BigDecimal.valueOf(100.0));
+    }
+
+    private BigDecimal calculateMinTourSellingPrice(Tour tour) {
+        return tour.getInitialPrice()
+                .multiply(
+                        BigDecimal.valueOf(1.0).subtract(BigDecimal.valueOf(
+                            tourBookingProperties.getDiscount() / 100.0
+                        )
+                ));
+    }
+
+    private boolean isClientHasTourAtSameTimeframe(Client client, Tour tour) {
+        return client.getBookedTours().stream()
+                .map(ClientTour::getTour)
                 .anyMatch(bookedTour ->
                         tour.getDepartureAt().isBefore(bookedTour.getReturnAt()) &&
                                 bookedTour.getDepartureAt().isBefore(tour.getReturnAt())
                 );
-
-        if (isClientHasTourAtSameTimeframe) {
-            throw new SameTimeFrameException("You can't book 2 tours at the same time");
-        }
-
-        BookedTour bookedTour = BookedTour.builder()
-                .id(new BookedTourKey(tourId, clientId))
-                .tour(tour)
-                .client(client)
-                .sellingPrice(bookTourRequest.getSellingPrice())
-                .build();
-
-        BookedTour saved = bookedTourRepository.save(bookedTour);
-
-        return tourSellingPriceMapper.toResponse(saved);
     }
 
-    public TourAggregateResponse getTourSumAndAvgSellingPrice(Long tourId) {
-        return tourRepository.sumAndAvgTourSellingPrices(tourId).orElseThrow(() -> new TourNotFoundException("Tour with id " + tourId + " not found"));
-    }
-
-    public TourResponse getMostPopularTourWithTheLowestSellingPrice() {
-        Tour tour = tourRepository.findMostPopularTourWithTheLowestSellingPrice().orElseThrow(() ->
-                new TourNotFoundException("Tour not found")
-        );
-        return tourMapper.toResponse(tour);
-    }
-
+    @Transactional
     public void cancelBooking(Long tourId, Long clientId) {
-        BookedTourKey bookedTourKey = new BookedTourKey(tourId, clientId);
-        bookedTourRepository.findById(bookedTourKey).orElseThrow(() ->
-                new BookedTourNotFoundException("Client with id " + clientId + " didn't book a tour with id " + tourId)
-        );
-        bookedTourRepository.deleteById(bookedTourKey);
+        ClientTour clientTour = clientTourRepository.findByTourIdAndClientId(tourId, clientId)
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                BOOKING_NOT_FOUND.getMessage().formatted(clientId, tourId)
+                        )
+                );
+        clientTourRepository.delete(clientTour);
+    }
+
+    @Transactional(readOnly = true)
+    public TourAggregateDto getTourSumAndAvgSellingPrice(Long tourId) {
+        Tour tour = getTourById(tourId);
+        return tourRepository.sumAndAvgTourSellingPrices(tour);
+    }
+
+    @Transactional(readOnly = true)
+    public TourDto getMostPopularTourWithTheLowestSellingPrice() {
+        Optional<Tour> tourOpt = tourRepository.findMostPopularTourWithTheLowestSellingPrice();
+        return tourMapper.toDto(tourOpt.orElse(null));
     }
 }
