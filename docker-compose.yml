@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  app:
+    image: 'travel-agency:latest'
+    build:
+      context: .
+    container_name: app
+    depends_on:
+      - db
+    env_file:
+      - environments/app.env
+    ports:
+      - 8080:8080
+  db:
+    image: 'postgres:13.1-alpine'
+    container_name: db
+    env_file:
+      - environments/db.env
+    ports:
+      - 5432:5432

@@ -18,10 +18,9 @@ public class UserProperties {
 
     @Email
     @NotBlank
-    private String email = "user@gmail.com";
-
+    private String email;
 
     @Size(min = 5, max = 15)
-    private String password = "admin";
+    private String password;
 
 }
