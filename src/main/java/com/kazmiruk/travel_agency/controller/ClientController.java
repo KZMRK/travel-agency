@@ -1,8 +1,8 @@
 package com.kazmiruk.travel_agency.controller;
 
 import com.kazmiruk.travel_agency.model.dto.ClientDto;
+import com.kazmiruk.travel_agency.model.dto.ClientTourDto;
 import com.kazmiruk.travel_agency.model.dto.ErrorDto;
-import com.kazmiruk.travel_agency.model.dto.TourDto;
 import com.kazmiruk.travel_agency.service.ClientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -148,7 +148,7 @@ public class ClientController {
                             responseCode = "200",
                             content = @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = TourDto.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = ClientTourDto.class))
                             )
                     ),
                     @ApiResponse(
@@ -162,11 +162,11 @@ public class ClientController {
             }
     )
     @GetMapping("/{id}/tours")
-    public ResponseEntity<Set<TourDto>> getClientTours(
+    public ResponseEntity<Set<ClientTourDto>> getClientTours(
             @Parameter(name = "id", description = "id of the client whose tours you want to receive")
             @PathVariable("id") Long clientId
     ) {
-        Set<TourDto> tourResponses = clientService.getClientTours(clientId);
+        Set<ClientTourDto> tourResponses = clientService.getClientTours(clientId);
         return ResponseEntity.ok(tourResponses);
     }
 
@@ -196,15 +196,6 @@ public class ClientController {
                              description = "OK",
                              responseCode = "200"
                      )
-                     ,
-                     @ApiResponse(
-                             description = "Client not found",
-                             responseCode = "404",
-                             content = @Content(
-                                     mediaType = "application/json",
-                                     schema = @Schema(implementation = ErrorDto.class)
-                         )
-                    )
              }
     )
     @GetMapping("/with-highest-discount")
@@ -214,21 +205,7 @@ public class ClientController {
     }
 
     @Operation(
-            summary = "Customer generated the highest revenue overall for the travel agency",
-            responses = {
-                    @ApiResponse(
-                            description = "OK",
-                            responseCode = "200"
-                    ),
-                    @ApiResponse(
-                            description = "Client not found",
-                            responseCode = "404",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorDto.class)
-                        )
-                    )
-            }
+            summary = "Customer generated the highest revenue overall for the travel agency"
     )
     @GetMapping("/highest-revenue")
     public ResponseEntity<ClientDto> getClientGeneratedHighestRevenue() {

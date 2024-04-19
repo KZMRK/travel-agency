@@ -1,6 +1,5 @@
 package com.kazmiruk.travel_agency.model.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,7 +29,7 @@ public class Client {
 
     private String passportNumber;
 
-    @OneToMany(mappedBy = "client", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "client")
     private List<ClientTour> bookedTours;
 
 }

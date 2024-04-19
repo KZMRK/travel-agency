@@ -121,14 +121,6 @@ public class TourController {
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = ErrorDto.class)
                             )
-                    ),
-                    @ApiResponse(
-                            description = "Tour cannot be deleted",
-                            responseCode = "400",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorDto.class)
-                            )
                     )
 
             }
@@ -236,21 +228,7 @@ public class TourController {
     }
 
     @Operation(
-            summary = "The most popular trip with the lowest selling price",
-            responses = {
-                    @ApiResponse(
-                            description = "OK",
-                            responseCode = "200"
-                    ),
-                    @ApiResponse(
-                            description = "Tour not found",
-                            responseCode = "404",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorDto.class)
-                            )
-                    )
-            }
+            summary = "The most popular trip with the lowest selling price"
     )
     @GetMapping("/most-popular-with-lowest-selling-price")
     public ResponseEntity<TourDto> getMostPopularTourWithTheLowestSellingPrice() {

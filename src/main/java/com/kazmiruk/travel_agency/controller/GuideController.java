@@ -116,14 +116,6 @@ public class GuideController {
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = ErrorDto.class)
                             )
-                    ),
-                    @ApiResponse(
-                            description = "Guide cannot be deleted",
-                            responseCode = "400",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorDto.class)
-                            )
                     )
             }
     )
@@ -137,21 +129,7 @@ public class GuideController {
     }
 
     @Operation(
-            summary = "Get tour guide who generated the highest revenue",
-            responses = {
-                    @ApiResponse(
-                            description = "OK",
-                            responseCode = "200"
-                    ),
-                    @ApiResponse(
-                            description = "Guide not found",
-                            responseCode = "404",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorDto.class)
-                            )
-                    )
-            }
+            summary = "Get tour guide who generated the highest revenue"
     )
     @GetMapping("/highest-revenue")
     public ResponseEntity<GuideDto> getGuideGeneratedHighestRevenue() {

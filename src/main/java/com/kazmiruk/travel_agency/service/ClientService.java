@@ -1,11 +1,11 @@
 package com.kazmiruk.travel_agency.service;
 
 import com.kazmiruk.travel_agency.mapper.ClientMapper;
-import com.kazmiruk.travel_agency.mapper.TourMapper;
+import com.kazmiruk.travel_agency.mapper.ClientTourMapper;
 import com.kazmiruk.travel_agency.model.dto.ClientDto;
-import com.kazmiruk.travel_agency.model.dto.TourDto;
+import com.kazmiruk.travel_agency.model.dto.ClientTourDto;
 import com.kazmiruk.travel_agency.model.entity.Client;
-import com.kazmiruk.travel_agency.model.entity.Tour;
+import com.kazmiruk.travel_agency.model.entity.ClientTour;
 import com.kazmiruk.travel_agency.model.exception.AlreadyExistException;
 import com.kazmiruk.travel_agency.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class ClientService {
 
     private final ClientMapper clientMapper;
 
-    private final TourMapper tourMapper;
+    private final ClientTourMapper clientTourMapper;
 
     @Transactional
     public ClientDto createClient(ClientDto clientRequest) {
@@ -71,9 +71,9 @@ public class ClientService {
     }
 
     @Transactional(readOnly = true)
-    public Set<TourDto> getClientTours(Long clientId) {
-        Set<Tour> clientTours = clientRepository.findClientToursByClientId(clientId);
-        return clientTours.stream().map(tourMapper::toDto).collect(Collectors.toSet());
+    public Set<ClientTourDto> getClientTours(Long clientId) {
+        Set<ClientTour> clientTours = clientRepository.findClientToursByClientId(clientId);
+        return clientTours.stream().map(clientTourMapper::toDto).collect(Collectors.toSet());
     }
 
     @Transactional(readOnly = true)

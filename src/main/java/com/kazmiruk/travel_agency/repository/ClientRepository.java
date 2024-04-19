@@ -1,7 +1,7 @@
 package com.kazmiruk.travel_agency.repository;
 
 import com.kazmiruk.travel_agency.model.entity.Client;
-import com.kazmiruk.travel_agency.model.entity.Tour;
+import com.kazmiruk.travel_agency.model.entity.ClientTour;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
@@ -12,7 +12,7 @@ public interface ClientRepository extends BaseRepository<Client, Long> {
     boolean existsByPassportNumber(String passportNumber);
 
     @Query("SELECT c.bookedTours FROM Client c WHERE c.id = :clientId")
-    Set<Tour> findClientToursByClientId(Long clientId);
+    Set<ClientTour> findClientToursByClientId(Long clientId);
 
     @Query("SELECT c FROM Client c WHERE c NOT IN " +
             "(SELECT DISTINCT bt.client FROM ClientTour bt " +

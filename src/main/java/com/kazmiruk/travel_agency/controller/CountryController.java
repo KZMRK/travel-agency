@@ -121,14 +121,6 @@ public class CountryController {
                             responseCode = "204"
                     ),
                     @ApiResponse(
-                            description = "Country cannot be deleted",
-                            responseCode = "400",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorDto.class)
-                            )
-                    ),
-                    @ApiResponse(
                             description = "Country not found",
                             responseCode = "404",
                             content = @Content(

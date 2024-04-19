@@ -25,12 +25,12 @@ CREATE TABLE IF NOT EXISTS "guides" (
 
 CREATE TABLE IF NOT EXISTS "tours" (
     id BIGSERIAL PRIMARY KEY,
-    departure_id INTEGER REFERENCES countries(id) NOT NULL,
-    destination_id INTEGER REFERENCES countries(id) NOT NULL,
+    departure_id INTEGER REFERENCES countries(id) ON DELETE CASCADE NOT NULL,
+    destination_id INTEGER REFERENCES countries(id) ON DELETE CASCADE NOT NULL,
     departure_at DATE NOT NULL,
     return_at DATE NOT NULL,
     initial_price DECIMAL NOT NULL,
-    guide_id BIGINT REFERENCES guides(id) NOT NULL
+    guide_id BIGINT REFERENCES guides(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS "clients" (
@@ -42,8 +42,8 @@ CREATE TABLE IF NOT EXISTS "clients" (
 
 CREATE TABLE IF NOT EXISTS "client_tours" (
     id BIGSERIAL PRIMARY KEY,
-    tour_id BIGINT REFERENCES tours(id),
-    client_id BIGINT REFERENCES clients(id),
+    tour_id BIGINT REFERENCES tours(id) ON DELETE CASCADE,
+    client_id BIGINT REFERENCES clients(id) ON DELETE CASCADE,
     selling_price DECIMAL NOT NULL
 
 );
