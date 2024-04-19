@@ -1,9 +1,11 @@
 package com.kazmiruk.travel_agency.model.exception;
 
-public class AlreadyExistException extends RuntimeException {
+import com.kazmiruk.travel_agency.type.ErrorMessageType;
 
-    public AlreadyExistException(String message) {
-        super(message);
+public class AlreadyExistException extends ApplicationException {
+
+    public AlreadyExistException(ErrorMessageType errorMessageType, String arg) {
+        super(errorMessageType, arg);
     }
 
 }

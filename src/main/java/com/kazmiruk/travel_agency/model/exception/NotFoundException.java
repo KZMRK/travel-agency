@@ -1,9 +1,11 @@
 package com.kazmiruk.travel_agency.model.exception;
 
-public class NotFoundException extends RuntimeException {
+import com.kazmiruk.travel_agency.type.ErrorMessageType;
 
-    public NotFoundException(String message) {
-        super(message);
+public class NotFoundException extends ApplicationException {
+
+    public NotFoundException(ErrorMessageType errorMessageType, Number... id) {
+        super(errorMessageType, (Object[]) id);
     }
 
 }

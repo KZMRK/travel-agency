@@ -7,7 +7,6 @@ import com.kazmiruk.travel_agency.model.dto.TourDto;
 import com.kazmiruk.travel_agency.model.entity.Client;
 import com.kazmiruk.travel_agency.model.entity.Tour;
 import com.kazmiruk.travel_agency.model.exception.AlreadyExistException;
-import com.kazmiruk.travel_agency.model.exception.NotFoundException;
 import com.kazmiruk.travel_agency.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.kazmiruk.travel_agency.type.ErrorMessageType.CLIENT_NOT_FOUND;
 import static com.kazmiruk.travel_agency.type.ErrorMessageType.CLIENT_WITH_PASSPORT_ALREADY_EXIST;
 
 @Service
@@ -42,9 +40,8 @@ public class ClientService {
     private void checkIfClientAlreadyExistsByPassportNumber(String passportNumber) {
         if (clientRepository.existsByPassportNumber(passportNumber)) {
             throw new AlreadyExistException(
-                    CLIENT_WITH_PASSPORT_ALREADY_EXIST.getMessage().formatted(
-                            passportNumber
-                    )
+                    CLIENT_WITH_PASSPORT_ALREADY_EXIST,
+                    passportNumber
             );
         }
     }
@@ -59,7 +56,7 @@ public class ClientService {
 
     @Transactional
     public ClientDto updateClient(Long clientId, ClientDto clientRequest) {
-        Client client = getClientById(clientId);
+        Client client = clientRepository.getOneById(clientId);
         if (!client.getPassportNumber().equals(clientRequest.getPassportNumber())) {
             checkIfClientAlreadyExistsByPassportNumber(clientRequest.getPassportNumber());
         }
@@ -67,19 +64,9 @@ public class ClientService {
         return clientMapper.toDto(client);
     }
 
-    private Client getClientById(Long clientId) {
-        return clientRepository.findById(clientId).orElseThrow(() ->
-                new NotFoundException(
-                            CLIENT_NOT_FOUND.getMessage().formatted(
-                                    clientId
-                            )
-                )
-        );
-    }
-
     @Transactional
     public void deleteClient(Long clientId) {
-        Client client = getClientById(clientId);
+        Client client = clientRepository.getOneById(clientId);
         clientRepository.delete(client);
     }
 

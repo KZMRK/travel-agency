@@ -2,12 +2,11 @@ package com.kazmiruk.travel_agency.repository;
 
 import com.kazmiruk.travel_agency.model.dto.TourAggregateDto;
 import com.kazmiruk.travel_agency.model.entity.Tour;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-public interface TourRepository extends JpaRepository<Tour, Long> {
+public interface TourRepository extends BaseRepository<Tour, Long> {
 
     @Query("SELECT new com.kazmiruk.travel_agency.model.dto.TourAggregateDto(SUM(ct.sellingPrice), AVG(ct.sellingPrice)) " +
             "FROM ClientTour ct WHERE ct.tour = :tour GROUP BY ct.tour")

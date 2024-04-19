@@ -1,9 +1,11 @@
 package com.kazmiruk.travel_agency.model.exception;
 
-public class BadRequestException extends RuntimeException {
+import com.kazmiruk.travel_agency.type.ErrorMessageType;
 
-    public BadRequestException(String message) {
-        super(message);
+public class BadRequestException extends ApplicationException {
+
+    public BadRequestException(ErrorMessageType errorMessageType, Object... messageArgs) {
+        super(errorMessageType, messageArgs);
     }
 
 }

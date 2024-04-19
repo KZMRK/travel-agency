@@ -2,13 +2,12 @@ package com.kazmiruk.travel_agency.repository;
 
 import com.kazmiruk.travel_agency.model.entity.Client;
 import com.kazmiruk.travel_agency.model.entity.Tour;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 import java.util.Set;
 
-public interface ClientRepository extends JpaRepository<Client, Long> {
+public interface ClientRepository extends BaseRepository<Client, Long> {
 
     boolean existsByPassportNumber(String passportNumber);
 

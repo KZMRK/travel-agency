@@ -1,12 +1,11 @@
 package com.kazmiruk.travel_agency.repository;
 
 import com.kazmiruk.travel_agency.model.entity.Country;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-public interface CountryRepository extends JpaRepository<Country, Integer> {
+public interface CountryRepository extends BaseRepository<Country, Integer> {
 
     boolean existsByName(String name);
 
