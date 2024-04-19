@@ -10,13 +10,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 user:
   email: ${USER_EMAIL}
   password: ${USER_PASSWORD}
+
+tour:
+  booking:
+    discount: 20

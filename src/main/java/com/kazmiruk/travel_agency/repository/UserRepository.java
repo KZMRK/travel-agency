@@ -1,6 +1,6 @@
 package com.kazmiruk.travel_agency.repository;
 
-import com.kazmiruk.travel_agency.model.User;
+import com.kazmiruk.travel_agency.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

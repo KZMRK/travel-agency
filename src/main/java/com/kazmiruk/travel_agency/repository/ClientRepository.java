@@ -1,31 +1,30 @@
 package com.kazmiruk.travel_agency.repository;
 
-import com.kazmiruk.travel_agency.model.Client;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.kazmiruk.travel_agency.model.entity.Client;
+import com.kazmiruk.travel_agency.model.entity.ClientTour;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-public interface ClientRepository extends JpaRepository<Client, Long> {
+public interface ClientRepository extends BaseRepository<Client, Long> {
 
-    @Query("SELECT c FROM Client c ORDER BY RANDOM() LIMIT 1")
-    Optional<Client> findRandom();
+    boolean existsByPassportNumber(String passportNumber);
+
+    @Query("SELECT c.bookedTours FROM Client c WHERE c.id = :clientId")
+    Set<ClientTour> findClientToursByClientId(Long clientId);
 
     @Query("SELECT c FROM Client c WHERE c NOT IN " +
-            "(SELECT DISTINCT bt.client FROM BookedTour bt " +
+            "(SELECT DISTINCT bt.client FROM ClientTour bt " +
             "WHERE YEAR(bt.tour.departureAt) = :year) ORDER BY c.passportNumber DESC")
-    List<Client> findClientsWithoutTourInYear(
-            @Param("year") Integer year
-    );
+    Set<Client> findClientsWithoutTourInYear(Integer year);
 
-    @Query("SELECT bt.client FROM BookedTour bt ORDER BY bt.tour.initialPrice - bt.sellingPrice DESC LIMIT 1")
+    @Query("SELECT ct.client FROM ClientTour ct ORDER BY ct.tour.initialPrice - ct.sellingPrice DESC LIMIT 1")
     Optional<Client> findClientWithHighestDiscount();
 
-    @Query("SELECT bt.client, SUM(bt.sellingPrice) FROM BookedTour bt " +
-            "GROUP BY bt.client " +
-            "ORDER BY SUM(bt.sellingPrice) " +
+    @Query("SELECT ct.client, SUM(ct.sellingPrice) FROM ClientTour ct " +
+            "GROUP BY ct.client " +
+            "ORDER BY SUM(ct.sellingPrice) " +
             "DESC LIMIT 1")
     Optional<Client> findClientGeneratedHighestRevenue();
 }
