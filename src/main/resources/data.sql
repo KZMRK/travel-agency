@@ -1,4 +1,3 @@
-INSERT INTO users (email, password, role) VALUES ('dima.kazmiruk.05@gmail.com', '$2a$12$d49lnBg6AYKQyyAgS0e5zOnA69dd/UrzpoNjL3W3ols382kWqT7Eu', 'ROLE_ADMIN');
 INSERT INTO countries (name) VALUES
                     ('Ukraine'),
                     ('Poland'),
